@@ -76,7 +76,7 @@ namespace Test.PboConsole.Commands
             command2.GetSamples().Returns(new[] {"c2s1", "c2s2"});
 
             ConsoleCore core = this.GetConsoleCore(command1, command2);
-            core.PrintUsage(TODO);
+            core.PrintUsage(null);
 
             this.consoleService.Received(2).Write0TabLine(Arg.Is<string>(p => !string.IsNullOrEmpty(p)));
             this.consoleService.Received(1).Write1TabLine("c1u1");

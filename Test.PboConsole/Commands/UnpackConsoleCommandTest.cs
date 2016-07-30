@@ -134,5 +134,38 @@ namespace Test.PboConsole.Commands
 
             this.pboArchiverService.Received(1).UnpackPboAsync(file, folder).IgnoreAwait();
         }
+
+
+        [Test]
+        public void Test_ToString_Returns_String_When_No_Fields_Are_Configured()
+        {
+            UnpackConsoleCommand command = this.GetCommand();
+            string str = command.ToString();
+
+            var expected = "[PboConsole.Commands.UnpackConsoleCommand]";
+            NAssert.AreEqual(expected, str);
+        }
+
+        [Test]
+        public void Test_ToString_Returns_String_When_PboFileName_Only_Configured()
+        {
+            UnpackConsoleCommand command = this.GetCommand();
+            command.TryParse(new[] { UnpackConsoleCommand.KeyWord, "PboFile.pbo", "" });
+            string str = command.ToString();
+
+            var expected = "[PboConsole.Commands.UnpackConsoleCommand; PboFileName=PboFile.pbo]";
+            NAssert.AreEqual(expected, str);
+        }
+
+        [Test]
+        public void Test_ToString_Returns_String_When_Both_PboFileName_And_DestFolder_Configured()
+        {
+            UnpackConsoleCommand command = this.GetCommand();
+            command.TryParse(new[] { UnpackConsoleCommand.KeyWord, "PboFile.pbo", "SomePath\\SomeFolder" });
+            string str = command.ToString();
+
+            var expected = "[PboConsole.Commands.UnpackConsoleCommand; PboFileName=PboFile.pbo; DestFolder=SomePath\\SomeFolder]";
+            NAssert.AreEqual(expected, str);
+        }
     }
 }

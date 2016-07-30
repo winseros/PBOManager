@@ -1,20 +1,29 @@
 ﻿using LightInject;
+using NLog;
 using PboConsole.Commands;
 
 namespace PboConsole
 {
     class Program
     {
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+
         static void Main(string[] args)
         {
+            logger.Info("Started the console application");
+
             using (var container = new ServiceContainer())
             {
                 container.SetDefaultLifetime<PerContainerLifetime>();
                 container.RegisterFrom<PboTools.CompositionRoot>();
                 container.RegisterFrom<CompositionRoot>();
 
+                logger.Debug("Container configuration complete");
+
                 var core = container.GetInstance<ConsoleCore>();
                 IConsoleCommand command = core.GetCommand(args);
+
+                logger.Info("The following command has been chosen according to the input args: {0}", command);
 
                 if (command != null)
                     command.Exec();

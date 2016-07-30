@@ -134,5 +134,38 @@ namespace Test.PboConsole.Commands
 
             this.pboArchiverService.Received(1).PackDirecoryAsync(folder, file).IgnoreAwait();
         }
+
+
+        [Test]
+        public void Test_ToString_Returns_String_When_No_Fields_Are_Configured()
+        {
+            PackConsoleCommand command = this.GetCommand();
+            string str = command.ToString();
+
+            var expected = "[PboConsole.Commands.PackConsoleCommand]";
+            NAssert.AreEqual(expected, str);
+        }
+
+        [Test]
+        public void Test_ToString_Returns_String_When_FolderToPack_Only_Configured()
+        {
+            PackConsoleCommand command = this.GetCommand();
+            command.TryParse(new[] {PackConsoleCommand.KeyWord, "SomePath\\SomeFolder", ""});
+            string str = command.ToString();
+
+            var expected = "[PboConsole.Commands.PackConsoleCommand; FolderToPack=SomePath\\SomeFolder]";
+            NAssert.AreEqual(expected, str);
+        }
+
+        [Test]
+        public void Test_ToString_Returns_String_When_Both_FolderToPack_And_PboFileName_Configured()
+        {
+            PackConsoleCommand command = this.GetCommand();
+            command.TryParse(new[] { PackConsoleCommand.KeyWord, "SomePath\\SomeFolder", "PboFile.pbo" });
+            string str = command.ToString();
+
+            var expected = "[PboConsole.Commands.PackConsoleCommand; FolderToPack=SomePath\\SomeFolder; PboFileName=PboFile.pbo]";
+            NAssert.AreEqual(expected, str);
+        }
     }
 }
