@@ -22,5 +22,17 @@ namespace PboConsole.Services
             Console.Write("\t");
             Console.WriteLine(message);
         }
+
+        public void WriteException(Exception ex)
+        {
+            var spaces = "";
+            while (ex != null)
+            {
+                Console.Write(spaces);
+                Console.WriteLine(ex.Message);
+                ex = ex.InnerException;
+                spaces = string.Concat(spaces, " ");
+            }
+        }
     }
 }

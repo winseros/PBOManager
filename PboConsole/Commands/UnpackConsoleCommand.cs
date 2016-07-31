@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using NLog;
+using PboConsole.Services;
 using PboTools.Service;
 
 namespace PboConsole.Commands
@@ -14,12 +15,15 @@ namespace PboConsole.Commands
         internal const string KeyWord = "-unpack";
 
         private readonly IPboArchiverService pboArchiverService;
+        private readonly IConsoleService consoleService;
+
         private string pboFileName;
         private string destFolder;
 
-        public UnpackConsoleCommand(IPboArchiverService pboArchiverService)
+        public UnpackConsoleCommand(IPboArchiverService pboArchiverService, IConsoleService consoleService)
         {
             this.pboArchiverService = pboArchiverService;
+            this.consoleService = consoleService;
         }
 
         public string PboFileName => this.pboFileName;
@@ -73,13 +77,18 @@ namespace PboConsole.Commands
 
         public void Exec()
         {
-            logger.Info("Executing the command");
-
             string cwd = Directory.GetCurrentDirectory();
-            string filePath = Path.Combine(cwd, this.PboFileName);
-            string destPath = Path.Combine(cwd, this.DestFolder);
+            logger.Debug("Executing the command from the cwd: {0}", cwd);
+            
+            string filePath = new Uri(Path.Combine(cwd, this.pboFileName)).LocalPath;
+            string destPath = new Uri(Path.Combine(cwd, this.destFolder)).LocalPath;
+
+            this.consoleService.Write0TabLine($"Unpacking the file: {filePath}");
+            this.consoleService.Write0TabLine($"Into the directory: {destPath}");
 
             this.pboArchiverService.UnpackPboAsync(filePath, destPath).Wait();
+
+            this.consoleService.Write0TabLine("Done!");
         }
 
         public override string ToString()

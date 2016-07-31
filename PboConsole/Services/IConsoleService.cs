@@ -1,4 +1,6 @@
-﻿namespace PboConsole.Services
+﻿using System;
+
+namespace PboConsole.Services
 {
     public interface IConsoleService
     {
@@ -7,5 +9,7 @@
         void Write0TabLine(string message);
 
         void Write1TabLine(string message);
+
+        void WriteException(Exception ex);
     }
 }

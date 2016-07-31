@@ -1,6 +1,9 @@
-﻿using LightInject;
+﻿using System;
+using System.Linq;
+using LightInject;
 using NLog;
 using PboConsole.Commands;
+using PboConsole.Services;
 
 namespace PboConsole
 {
@@ -26,17 +29,28 @@ namespace PboConsole
                 logger.Info("The following command has been chosen according to the input args: {0}", command);
 
                 if (command != null)
-                    command.Exec();
+                    Program.TryExec(command, container);
                 else
                     core.PrintUsage("PboConsole.exe");
+
+                logger.Info("Sucessfully closing the application");
             }
+        }
 
+        private static void TryExec(IConsoleCommand command, IServiceContainer container)
+        {
+            try
+            {
+                command.Exec();
+            }
+            catch (AggregateException ex)
+            {
+                logger.Fatal(ex);
 
-            /*new pboArchiverService().UnpackPboAsync(@"C:\Users\Nikita\Desktop\KingOfTheHill_by_Sa-Matra_for_Bobby.Altis.pbo", "C:\\users\\nikita\\desktop\\king-of-the-hill").Wait();
-		    new pboArchiverService().PackDirecoryAsync(@"C:\Users\Nikita\Desktop\king-of-the-hill", @"C:\Users\Nikita\Desktop\ko.pbo").Wait();*/
-
-            /*IConsoleCommand command = ConsoleCore.GetCommand(args);
-			command.Exec();*/
+                var inner = ex.InnerExceptions.First();
+                var console = container.GetInstance<IConsoleService>();
+                console.WriteException(inner);
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ using System.IO;
 using NSubstitute;
 using NUnit.Framework;
 using PboConsole.Commands;
+using PboConsole.Services;
 using PboTools.Service;
 using Util;
 using NAssert = NUnit.Framework.Assert;
@@ -12,16 +13,18 @@ namespace Test.PboConsole.Commands
     public class UnpackConsoleCommandTest
     {
         private IPboArchiverService pboArchiverService;
+        private IConsoleService consoleService;
 
         [SetUp]
         public void SetUp()
         {
             this.pboArchiverService = Substitute.For<IPboArchiverService>();
+            this.consoleService = Substitute.For<IConsoleService>();
         }
 
         private UnpackConsoleCommand GetCommand()
         {
-            return new UnpackConsoleCommand(this.pboArchiverService);
+            return new UnpackConsoleCommand(this.pboArchiverService, this.consoleService);
         }
 
         [Test]
@@ -133,6 +136,27 @@ namespace Test.PboConsole.Commands
             command.Exec();
 
             this.pboArchiverService.Received(1).UnpackPboAsync(file, folder).IgnoreAwait();
+        }
+
+        [Test]
+        public void Test_Exec_Runs_The_Archiver_And_Passes_The_Normalized_Paths_To_It()
+        {
+            var file = @"MyPboFiles\MyPboFileName.pbo";
+            var folder = @"MyPboPath\MyPboFolder";
+
+            var args = new[] { UnpackConsoleCommand.KeyWord, $@"..\{file}", $@"..\{folder}" };
+            UnpackConsoleCommand command = this.GetCommand();
+            bool parsed = command.TryParse(args);
+
+            NAssert.True(parsed);
+
+            command.Exec();
+
+            string cwd = Directory.GetParent(Directory.GetCurrentDirectory()).FullName;
+            string absFile = $@"{cwd}\{file}";
+            string absFolder = $@"{cwd}\{folder}";
+
+            this.pboArchiverService.Received(1).UnpackPboAsync(absFile, absFolder).IgnoreAwait();
         }
 
 
