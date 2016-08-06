@@ -17,6 +17,15 @@ namespace Test.PboTools.Service
         }
 
         [Test]
+        public void Test_ReadPboInfo_Throws_If_Called_With_Illegal_Args()
+        {
+            PboInfoService service = this.GetService();
+            TestDelegate caller = () => service.ReadPboInfo(null);
+            var ex = Assert.Catch<ArgumentException>(caller);
+            StringAssert.Contains("reader", ex.Message);
+        }
+
+        [Test]
         public void Test_ReadPboInfo_Retruns_Pbo_Header_Info_With_Signature_And_Hash()
         {
             using (Stream stream = File.OpenRead(PathUtil.GetPath(@"TestData\signature_3items_packed_hash.pbo")))
@@ -165,6 +174,20 @@ namespace Test.PboTools.Service
 
 
         [Test]
+        public void Test_WritePboInfo_Throws_If_Called_With_Illegal_Args()
+        {
+            PboInfoService service = this.GetService();
+
+            TestDelegate caller = () => service.WritePboInfo(null, null);
+            var ex = Assert.Catch<ArgumentException>(caller);
+            StringAssert.Contains("writer", ex.Message);
+
+            caller = () => service.WritePboInfo(new PboBinaryWriter(Stream.Null), null);
+            ex = Assert.Catch<ArgumentException>(caller);
+            StringAssert.Contains("info", ex.Message);
+        }
+
+        [Test]
         public void Test_WritePboInfo_Writes_Pbo_Header_Info_With_Signature_And_Header()
         {
             using (var stream = new MemoryStream())
@@ -281,6 +304,16 @@ namespace Test.PboTools.Service
             }
         }
 
+
+        [Test]
+        public void Test_CollectPboInfo_Throws_If_Called_With_Illegal_Args()
+        {
+            PboInfoService service = this.GetService();
+
+            TestDelegate caller = () => service.CollectPboInfo(null);
+            var ex = Assert.Catch<ArgumentException>(caller);
+            StringAssert.Contains("directory", ex.Message);
+        }
 
         [Test]
         public void Test_CollectPboInfo_Collects_The_Folder_Info()
