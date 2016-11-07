@@ -7,10 +7,12 @@ namespace PboTools.Service
 {
     public class PboArchiverService : IPboArchiverService
     {
+        private readonly IPboInfoService pboInfoService;
         private readonly IPboPackService pboPackService;
 
-        public PboArchiverService(IPboPackService pboPackService)
+        public PboArchiverService(IPboInfoService pboInfoService, IPboPackService pboPackService)
         {
+            this.pboInfoService = pboInfoService;
             this.pboPackService = pboPackService;
         }
 
@@ -20,13 +22,12 @@ namespace PboTools.Service
             Assert.NotNull(pboPath, nameof(pboPath));
 
             var directory = new DirectoryInfo(directoryPath);
-            var infoService = new PboInfoService();
-            PboInfo info = infoService.CollectPboInfo(directory);
+            PboInfo info = this.pboInfoService.CollectPboInfo(directory);
 
             using (Stream stream = File.Open(pboPath, FileMode.Create, FileAccess.Write))
             using (var writer = new PboBinaryWriter(stream))
             {
-                infoService.WritePboInfo(writer, info);
+                this.pboInfoService.WritePboInfo(writer, info);
                 await this.pboPackService.PackPboAsync(info, stream, directory).ConfigureAwait(false);
             }
         }
@@ -39,8 +40,7 @@ namespace PboTools.Service
             using (Stream str = File.Open(pboPath, FileMode.Open, FileAccess.Read, FileShare.Read))
             using (var reader = new PboBinaryReader(str))
             {
-                var service = new PboInfoService();
-                PboInfo info = service.ReadPboInfo(reader);
+                PboInfo info = this.pboInfoService.ReadPboInfo(reader);
                 await this.pboPackService.UnpackPboAsync(info, str, new DirectoryInfo(directoryPath)).ConfigureAwait(false);
             }
         }
