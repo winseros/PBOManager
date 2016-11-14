@@ -60,7 +60,7 @@ namespace Test.PboConsole.Commands
             NAssert.True(result);
 
             NAssert.AreEqual(@"C:\PboFolder\PboFile.pbo", command.PboFileName);
-            NAssert.AreEqual(@"\", command.DestFolder);
+            NAssert.AreEqual(@"PboFile", command.DestFolder);
         }
 
         [Test]

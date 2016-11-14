@@ -53,7 +53,7 @@ namespace PboConsole.Commands
             this.pboFileName = args[param1Index];
             logger.Debug("Set the {0} property to: \"{1}\"", nameof(this.pboFileName), this.pboFileName);
 
-            this.destFolder = args.Length <= param2Index ? @"\" : args[param2Index];
+            this.destFolder = args.Length <= param2Index ? Path.GetFileNameWithoutExtension(this.pboFileName) : args[param2Index];
             logger.Debug("Set the {0} property to: \"{1}\"", nameof(this.destFolder), this.destFolder);
 
             return true;
