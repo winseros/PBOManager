@@ -28,7 +28,7 @@ namespace Test.PboTools.Service
         [Test]
         public void Test_ReadPboInfo_Retruns_Pbo_Header_Info_With_Signature_And_Hash()
         {
-            using (Stream stream = File.OpenRead(PathUtil.GetPath(@"TestData\signature_3items_packed_hash.pbo")))
+            using (Stream stream = File.OpenRead(PathUtil.GetPath(@"TestData\PboInfoService\signature_3items_packed_hash.pbo")))
             using (var reader = new PboBinaryReader(stream))
             {
                 PboInfoService service = this.GetService();
@@ -105,7 +105,7 @@ namespace Test.PboTools.Service
         [Test]
         public void Test_ReadPboInfo_Retruns_Pbo_Header_Info_With_NoSignature_And_NoHash()
         {
-            using (Stream stream = File.OpenRead(PathUtil.GetPath(@"TestData\nosignature_3items_packed_nohash.pbo")))
+            using (Stream stream = File.OpenRead(PathUtil.GetPath(@"TestData\PboInfoService\nosignature_3items_packed_nohash.pbo")))
             using (var reader = new PboBinaryReader(stream))
             {
                 PboInfoService service = this.GetService();
@@ -140,7 +140,7 @@ namespace Test.PboTools.Service
         [Test]
         public void Test_ReadPboInfo_Retruns_Pbo_Header_Info_With_NoItems_And_NoHash()
         {
-            using (Stream stream = File.OpenRead(PathUtil.GetPath(@"TestData\signature_0items_nohash.pbo")))
+            using (Stream stream = File.OpenRead(PathUtil.GetPath(@"TestData\PboInfoService\signature_0items_nohash.pbo")))
             using (var reader = new PboBinaryReader(stream))
             {
                 PboInfoService service = this.GetService();
@@ -247,7 +247,7 @@ namespace Test.PboTools.Service
                 using (var reader = new BinaryReader(stream))
                 {
                     byte[] writtenPbo = reader.ReadBytes((int) stream.Length);
-                    byte[] samplePbo = File.ReadAllBytes(PathUtil.GetPath(@"TestData\signature_2items_packed_nocontent.pbo"));
+                    byte[] samplePbo = File.ReadAllBytes(PathUtil.GetPath(@"TestData\PboInfoService\signature_2items_packed_nocontent.pbo"));
                     CollectionAssert.AreEqual(samplePbo, writtenPbo);
                 }
             }
@@ -298,7 +298,7 @@ namespace Test.PboTools.Service
                 using (var reader = new BinaryReader(stream))
                 {
                     byte[] writtenPbo = reader.ReadBytes((int) stream.Length);
-                    byte[] samplePbo = File.ReadAllBytes(PathUtil.GetPath(@"TestData\nosignature_2items_packed_nocontent.pbo"));
+                    byte[] samplePbo = File.ReadAllBytes(PathUtil.GetPath(@"TestData\PboInfoService\nosignature_2items_packed_nocontent.pbo"));
                     CollectionAssert.AreEqual(samplePbo, writtenPbo);
                 }
             }

@@ -52,6 +52,7 @@
     <Compile Include="Domain\PboHeaderEntryTest.cs" />
     <Compile Include="PathUtil.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Service\LzhServiceTest.cs" />
     <Compile Include="Service\PboArchiverServiceTest.cs" />
     <Compile Include="Service\PboBinaryReaderTest.cs" />
     <Compile Include="Service\PboBinaryWriterTest.cs" />
@@ -62,19 +63,22 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="TestData\nosignature_2items_packed_nocontent.pbo">
+    <None Include="TestData\LzhService\gpl-3.0.lzh">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="TestData\nosignature_3items_packed_nohash.pbo">
+    <None Include="TestData\PboInfoService\nosignature_2items_packed_nocontent.pbo">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="TestData\signature_0items_nohash.pbo">
+    <None Include="TestData\PboInfoService\nosignature_3items_packed_nohash.pbo">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="TestData\signature_2items_packed_nocontent.pbo">
+    <None Include="TestData\PboInfoService\signature_0items_nohash.pbo">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="TestData\signature_3items_packed_hash.pbo">
+    <None Include="TestData\PboInfoService\signature_2items_packed_nocontent.pbo">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\PboInfoService\signature_3items_packed_hash.pbo">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -87,6 +91,12 @@
       <Project>{AB10D03C-EA4C-4A20-9D8D-BC0B034B1F57}</Project>
       <Name>Util</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Content Include="TestData\LzhService\gpl-3.0.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
