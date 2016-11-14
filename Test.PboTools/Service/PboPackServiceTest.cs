@@ -81,10 +81,10 @@ namespace Test.PboTools.Service
             //verify the mocks have been called
             this.diskService.Received(1).TryCreateFolder(dir, pboFlags);
             this.diskService.Received(1).CreateFile(entry, dir, pboFlags);
-            this.lzhService.DidNotReceiveWithAnyArgs().Decompress(null, null, 0);
+            this.lzhService.DidNotReceiveWithAnyArgs().Decompress(null, null, 0).IgnoreAwait();
 
             //check output results
-            Assert.False(outputStream.CanRead);                        
+            Assert.False(outputStream.CanRead);
             byte[] expectedContents = new byte[]
             {
                 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
@@ -122,7 +122,7 @@ namespace Test.PboTools.Service
             //verify the mocks have been called
             this.diskService.Received(1).TryCreateFolder(dir, pboFlags);
             this.diskService.Received(1).CreateFile(entry, dir, pboFlags);
-            this.lzhService.Received(1).Decompress(pboStream, outputStream, entry.OriginalSize);
+            this.lzhService.Received(1).Decompress(pboStream, outputStream, entry.OriginalSize).IgnoreAwait();
 
             //verify the pboStream position has been set for unpacking
             Assert.AreEqual(entry.DataOffset, pboStream.Position);

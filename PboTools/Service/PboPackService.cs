@@ -33,7 +33,7 @@ namespace PboTools.Service
                 using (Stream stream = this.pboDiskService.CreateFile(entry, directory, flags))
                 {
                     if (entry.IsCompressed)
-                        this.UnzipFileFromPbo(entry, pboStream, stream);
+                        await this.UnzipFileFromPbo(entry, pboStream, stream).ConfigureAwait(false);
                     else
                         await this.CopyFileFromPboAsync(entry, pboStream, stream).ConfigureAwait(false);
 
@@ -74,11 +74,11 @@ namespace PboTools.Service
             }
         }
 
-        private void UnzipFileFromPbo(PboHeaderEntry entry, Stream pboStream, Stream file)
+        private async Task UnzipFileFromPbo(PboHeaderEntry entry, Stream pboStream, Stream file)
         {
             logger.Debug("Pbo stream length is \"{0}\", entry data offset is \"{1}\"", pboStream.Length, entry.DataOffset);
-            pboStream.Position = entry.DataOffset;
-            this.lzhService.Decompress(pboStream, file, entry.OriginalSize);
+            pboStream.Seek(entry.DataOffset, SeekOrigin.Begin);
+            await this.lzhService.Decompress(pboStream, file, entry.OriginalSize).ConfigureAwait(false);
         }
 
         public virtual async Task PackPboAsync(PboInfo pboInfo, Stream pboStream, DirectoryInfo directory)

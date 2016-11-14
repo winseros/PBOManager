@@ -1,37 +1,43 @@
 ﻿using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using Util;
 
 namespace PboTools.Service
 {
     public class LzhService : ILzhService
     {
-        public void Decompress(Stream source, Stream dest, long targetLength)
+        private const int PacketFormatUncompressed = 1;
+
+        public async Task Decompress(Stream source, Stream dest, long targetLength)
         {
             Assert.NotNull(source, nameof(source));
             Assert.NotNull(dest, nameof(dest));
             Assert.Greater(targetLength, 0, nameof(targetLength));
 
-            var reader = new BinaryReader(source, Encoding.UTF8);
-
-            var writer = new BinaryWriter(dest);
-            long noOfBytes = dest.Position + targetLength;
-            while (dest.Position < noOfBytes && source.Position < source.Length)
+            using (var reader = new BinaryReader(source, Encoding.UTF8, true))
+            using (var writer = new BinaryWriter(dest, Encoding.UTF8, true))
             {
-                byte format = reader.ReadByte();
-                byte i = 0;
-                while (i < 8 && dest.Position < noOfBytes && source.Position < source.Length - 2)
+                var buffer = new byte[18];
+                long noOfBytes = dest.Position + targetLength;
+                while (dest.Position < noOfBytes && source.CanRead)
                 {
-                    int bit = format >> i & 0x01;
-                    this.ProcessBlock(reader, writer, bit);
-                    i++;
+                    byte format = reader.ReadByte();
+                    byte i = 0;
+                    while (i < 8 && dest.Position < noOfBytes && source.Position < source.Length - 2)
+                    {
+                        int bit = format >> i & 0x01;
+                        this.ProcessBlock(reader, writer, dest, bit, buffer);
+                        await Task.Yield();
+                        i++;
+                    }
                 }
             }
         }
 
-        public void ProcessBlock(BinaryReader reader, BinaryWriter writer, int format)
+        private void ProcessBlock(BinaryReader reader, BinaryWriter writer, Stream dest, int format, byte[] buffer)
         {
-            if (format == 1)
+            if (format == LzhService.PacketFormatUncompressed)
             {
                 byte data = reader.ReadByte();
                 writer.Write(data);
@@ -39,7 +45,7 @@ namespace PboTools.Service
             else
             {
                 short pointer = reader.ReadInt16();
-                long rpos = writer.BaseStream.Position - ((pointer & 0x00FF) + ((pointer & 0xF000) >> 4));
+                long rpos = dest.Position - ((pointer & 0x00FF) + ((pointer & 0xF000) >> 4));
                 if (rpos < 0) rpos = 0;
                 int rlen = ((pointer & 0x0F00) >> 8) + 3;
 
@@ -50,29 +56,22 @@ namespace PboTools.Service
                 }
                 else
                 {
-                    long bytesToCopy = (rpos + rlen > writer.BaseStream.Position) ? writer.BaseStream.Position - rpos : rlen;
-
-                    writer.BaseStream.Seek(rpos, SeekOrigin.Begin);
-
-                    var copy = new byte[bytesToCopy];
-                    writer.BaseStream.Read(copy, 0, copy.Length);
-
-                    writer.BaseStream.Seek(writer.BaseStream.Length, SeekOrigin.Begin);
-
-                    if (copy.Length > 0)
+                    int bytesToCopy = rpos + rlen > dest.Position ? (int)(dest.Position - rpos) : rlen;
+                    if (bytesToCopy > 0)
                     {
+                        dest.Seek(rpos, SeekOrigin.Begin);
+                        dest.Read(buffer, 0, bytesToCopy);
+                        dest.Seek(0, SeekOrigin.End);
+                    
                         int bytesLeft = rlen;
-                        while (bytesLeft >= copy.Length)
+                        while (bytesLeft >= bytesToCopy)
                         {
-                            writer.Write(copy);
-                            bytesLeft -= copy.Length;
+                            writer.Write(buffer, 0, bytesToCopy);
+                            bytesLeft -= bytesToCopy;
                         }
-                        var i = 0;
-                        while (bytesLeft > 0)
+                        for (int j = 0; j < bytesLeft; j++)
                         {
-                            writer.Write(copy[i]);
-                            bytesLeft--;
-                            i++;
+                            writer.Write(buffer[j]);
                         }
                     }
                 }

@@ -1,9 +1,10 @@
 ﻿using System.IO;
+using System.Threading.Tasks;
 
 namespace PboTools.Service
 {
 	public interface ILzhService
 	{
-		void Decompress(Stream source, Stream dest, long targetLength);
+		Task Decompress(Stream source, Stream dest, long targetLength);
 	}
 }
