@@ -76,18 +76,18 @@ namespace Test.PboConsole.Commands
             command2.GetSamples().Returns(new[] {"c2s1", "c2s2"});
 
             ConsoleCore core = this.GetConsoleCore(command1, command2);
-            core.PrintUsage(null);
+            core.PrintUsage("exeName");
 
             this.consoleService.Received(2).Write0TabLine(Arg.Is<string>(p => !string.IsNullOrEmpty(p)));
-            this.consoleService.Received(1).Write1TabLine("c1u1");
-            this.consoleService.Received(1).Write1TabLine("c1u2");
-            this.consoleService.Received(1).Write1TabLine("c2u1");
-            this.consoleService.Received(1).Write1TabLine("c2u2");
+            this.consoleService.Received(1).Write1TabLine("exeName c1u1");
+            this.consoleService.Received(1).Write1TabLine("exeName c1u2");
+            this.consoleService.Received(1).Write1TabLine("exeName c2u1");
+            this.consoleService.Received(1).Write1TabLine("exeName c2u2");
 
-            this.consoleService.Received(1).Write1TabLine("c1s1");
-            this.consoleService.Received(1).Write1TabLine("c1s2");
-            this.consoleService.Received(1).Write1TabLine("c2s1");
-            this.consoleService.Received(1).Write1TabLine("c2s2");
+            this.consoleService.Received(1).Write1TabLine("exeName c1s1");
+            this.consoleService.Received(1).Write1TabLine("exeName c1s2");
+            this.consoleService.Received(1).Write1TabLine("exeName c2s1");
+            this.consoleService.Received(1).Write1TabLine("exeName c2s2");
         }
     }
 }

@@ -69,18 +69,18 @@ namespace PboTools.Domain
         {
             var builder = new StringBuilder();
 
-            builder.Append("FileName: \"");
-            builder.Append(this.FileName);
-            builder.Append("\"; PackingMethod: ");
-            builder.Append(this.PackingMethod);
-            builder.Append("; OriginalSize: ");
-            builder.Append(this.OriginalSize);
-            builder.Append("; Timestamp: ");
-            builder.Append(this.TimeStamp);
-            builder.Append("; DataOffset: ");
-            builder.Append(this.DataOffset);
-            builder.Append("; DataSize: ");
-            builder.Append(this.DataSize);
+            builder.Append("FileName:\"")
+                .Append(this.FileName)
+                .Append("\";PackingMethod:")
+                .Append(this.PackingMethod)
+                .Append(";OriginalSize:")
+                .Append(this.OriginalSize)
+                .Append(";Timestamp:")
+                .Append(this.TimeStamp)
+                .Append(";DataSize:")
+                .Append(this.DataSize)
+                .Append(";DataOffset:")
+                .Append(this.DataOffset);
 
             return builder.ToString();
         }

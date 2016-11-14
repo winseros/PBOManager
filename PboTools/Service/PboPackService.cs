@@ -1,84 +1,102 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using NLog;
 using PboTools.Domain;
+using Util;
 
 namespace PboTools.Service
 {
-	public class PboPackService : IPboPackService
-	{
-		private readonly IPboDiskService pboDiskService;
-		private readonly ILzhService lzhService;
+    public class PboPackService : IPboPackService
+    {
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        private readonly IPboDiskService pboDiskService;
+        private readonly ILzhService lzhService;
 
-		public PboPackService(IPboDiskService pboDiskService, ILzhService lzhService)
-		{
-			this.pboDiskService = pboDiskService;
-			this.lzhService = lzhService;
-		}
+        public PboPackService(IPboDiskService pboDiskService, ILzhService lzhService)
+        {
+            this.pboDiskService = pboDiskService;
+            this.lzhService = lzhService;
+        }
 
-		public async Task UnpackEntryAsync(PboHeaderEntry entry, Stream pboStream, DirectoryInfo directory, PboUnpackFlags flags)
-		{
-			try
-			{
-				this.pboDiskService.TryCreateFolder(directory, flags);
-				using (Stream stream = this.pboDiskService.CreateFile(entry, directory, flags))
-				{
-					if (entry.IsCompressed)
-						this.UnzipFileFromPbo(entry, pboStream, stream);
-					else
-						await this.CopyFileFromPboAsync(entry, pboStream, stream).ConfigureAwait(false);
+        public virtual async Task UnpackEntryAsync(PboHeaderEntry entry, Stream pboStream, DirectoryInfo directory, PboUnpackFlags flags)
+        {
+            Assert.NotNull(entry, nameof(entry));
+            Assert.NotNull(pboStream, nameof(pboStream));
+            Assert.NotNull(directory, nameof(directory));
 
-					await stream.FlushAsync().ConfigureAwait(false);
-				}
-			}
-			catch (InvalidFilenameException) //illegal characters in path
-			{
-				//do nothing				
-			}
-		}
+            logger.Debug("Unpacking the entry \"{0}\" to the directory \"{1}\" using flags \"{2}\"", entry, directory, flags);
 
-		public async Task UnpackPboAsync(PboInfo pboInfo, Stream pboStream, DirectoryInfo directory, PboUnpackFlags flags = PboUnpackFlags.WithFullPath)
-		{
-			foreach (PboHeaderEntry fileRecord in pboInfo.FileRecords)
-				await this.UnpackEntryAsync(fileRecord, pboStream, directory, flags).ConfigureAwait(false);
-		}
+            try
+            {
+                this.pboDiskService.TryCreateFolder(directory, flags);
+                using (Stream stream = this.pboDiskService.CreateFile(entry, directory, flags))
+                {
+                    if (entry.IsCompressed)
+                        this.UnzipFileFromPbo(entry, pboStream, stream);
+                    else
+                        await this.CopyFileFromPboAsync(entry, pboStream, stream).ConfigureAwait(false);
 
-		private async Task CopyFileFromPboAsync(PboHeaderEntry entry, Stream pboStream, Stream file)
-		{
-			var buff = new byte[1024];
+                    await stream.FlushAsync().ConfigureAwait(false);
+                }
+            }
+            catch (InvalidFilenameException) //illegal characters in path
+            {
+                logger.Error("Failed to extract entry with an incorrect fileName: \"{0}\"", entry);
+            }
+        }
 
-			pboStream.Position = entry.DataOffset;
-			long dataBlockEnd = pboStream.Position + entry.DataSize;
+        public virtual async Task UnpackPboAsync(PboInfo pboInfo, Stream pboStream, DirectoryInfo directory, PboUnpackFlags flags = PboUnpackFlags.WithFullPath)
+        {
+            Assert.NotNull(pboInfo, nameof(pboInfo));
+            Assert.NotNull(pboStream, nameof(pboStream));
+            Assert.NotNull(directory, nameof(directory));
 
-			int bytesToRead;
+            foreach (PboHeaderEntry fileRecord in pboInfo.FileRecords)
+                await this.UnpackEntryAsync(fileRecord, pboStream, directory, flags).ConfigureAwait(false);
+        }
 
-			while ((bytesToRead = (int)Math.Min(dataBlockEnd - pboStream.Position, buff.Length)) > 0)
-			{
-				var bytesRead = await pboStream.ReadAsync(buff, 0, bytesToRead).ConfigureAwait(false);				
-				await file.WriteAsync(buff, 0, bytesRead).ConfigureAwait(false);			
-			}
-		}
+        private async Task CopyFileFromPboAsync(PboHeaderEntry entry, Stream pboStream, Stream file)
+        {
+            logger.Debug("Pbo stream length is \"{0}\", entry data offset is \"{1}\", entry data size is \"{2}\"", pboStream.Length, entry.DataOffset, entry.DataSize);
 
-		private void UnzipFileFromPbo(PboHeaderEntry entry, Stream pboStream, Stream file)
-		{
-			pboStream.Position = entry.DataOffset;
-			this.lzhService.Decompress(pboStream, file, entry.OriginalSize);
-		}
+            var buff = new byte[1024];
 
-		public async Task PackPboAsync(PboInfo pboInfo, Stream pboStream, DirectoryInfo directory)
-		{
-			foreach (PboHeaderEntry headerEntry in pboInfo.FileRecords)
-			{
-				await this.PackEntryAsync(headerEntry, pboStream, directory).ConfigureAwait(false);
-			}
-		}
+            pboStream.Position = entry.DataOffset;
+            long dataBlockEnd = entry.DataOffset + entry.DataSize;
 
-		private async Task PackEntryAsync(PboHeaderEntry entry, Stream pboStream, DirectoryInfo directory)
-		{
-			using (Stream stream = this.pboDiskService.OpenFile(entry, directory))
-			{
-				await stream.CopyToAsync(pboStream).ConfigureAwait(false);
-			}
-		}
-	}
+            int bytesToRead;
+
+            while ((bytesToRead = (int) Math.Min(dataBlockEnd - pboStream.Position, buff.Length)) > 0)
+            {
+                int bytesRead = await pboStream.ReadAsync(buff, 0, bytesToRead).ConfigureAwait(false);
+                await file.WriteAsync(buff, 0, bytesRead).ConfigureAwait(false);
+            }
+        }
+
+        private void UnzipFileFromPbo(PboHeaderEntry entry, Stream pboStream, Stream file)
+        {
+            logger.Debug("Pbo stream length is \"{0}\", entry data offset is \"{1}\"", pboStream.Length, entry.DataOffset);
+            pboStream.Position = entry.DataOffset;
+            this.lzhService.Decompress(pboStream, file, entry.OriginalSize);
+        }
+
+        public virtual async Task PackPboAsync(PboInfo pboInfo, Stream pboStream, DirectoryInfo directory)
+        {
+            Assert.NotNull(pboInfo, nameof(pboInfo));
+            Assert.NotNull(pboStream, nameof(pboStream));
+            Assert.NotNull(directory, nameof(directory));
+
+            foreach (PboHeaderEntry headerEntry in pboInfo.FileRecords)
+                await this.PackEntryAsync(headerEntry, pboStream, directory).ConfigureAwait(false);
+        }
+
+        private async Task PackEntryAsync(PboHeaderEntry entry, Stream pboStream, DirectoryInfo directory)
+        {
+            using (Stream stream = this.pboDiskService.OpenFile(entry, directory))
+            {
+                await stream.CopyToAsync(pboStream).ConfigureAwait(false);
+            }
+        }
+    }
 }
