@@ -110,7 +110,7 @@ namespace Test.PboTools.Service
 
             //internal services mocks
             var pboInfo = new PboInfo();
-            this.pboInfoService.ReadPboInfo(null).ReturnsForAnyArgs(pboInfo);
+            this.pboInfoService.ReadPboInfo(Arg.Any<PboBinaryReader>()).ReturnsForAnyArgs(pboInfo);
             this.pboPackService.WhenForAnyArgs(packService => packService.UnpackPboAsync(null, null, null))
                 .Do(callInfo =>
                 {
@@ -125,6 +125,44 @@ namespace Test.PboTools.Service
             //verify the mocks have been called
             this.pboInfoService.Received(1).ReadPboInfo(Arg.Any<PboBinaryReader>());
             this.pboPackService.Received(1).UnpackPboAsync(pboInfo, Arg.Any<Stream>(), Arg.Any<DirectoryInfo>()).IgnoreAwait();
+        }
+
+
+        [Test]
+        public void Test_GetPboInfo_Throws_If_Called_With_Illegal_Args()
+        {
+            PboArchiverService service = this.GetService();
+
+            TestDelegate caller = () => service.GetPboInfo(null);
+            var ex = Assert.Catch<ArgumentException>(caller);
+            StringAssert.Contains("pboPath", ex.Message);
+        }
+
+        [Test]
+        public void Test_GetPboInfo_Returns_A_Valid_Info()
+        {
+            //prepare input data
+            string dirName = Path.GetTempPath();
+            string pboName = Path.Combine(dirName, "temp.pbo");
+
+            using (File.Open(pboName, FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                //just create an empty file                
+            }
+
+            //internal services mocks
+            var info = new PboInfo();
+            this.pboInfoService.ReadPboInfo(Arg.Any<PboBinaryReader>()).ReturnsForAnyArgs(info);
+
+            //call the method
+            PboArchiverService service = this.GetService();
+            PboInfo result = service.GetPboInfo(pboName);
+
+            //verify the mocks have been called
+            this.pboInfoService.Received(1).ReadPboInfo(Arg.Any<PboBinaryReader>());
+
+            //verify the result
+            Assert.AreSame(info, result);
         }
     }
 }

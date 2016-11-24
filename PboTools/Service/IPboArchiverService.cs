@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using PboTools.Domain;
 
 namespace PboTools.Service
 {
@@ -7,5 +8,7 @@ namespace PboTools.Service
         Task PackDirecoryAsync(string directoryPath, string pboPath);
 
         Task UnpackPboAsync(string pboPath, string directoryPath);
+
+        PboInfo GetPboInfo(string pboPath);
     }
 }

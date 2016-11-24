@@ -44,5 +44,17 @@ namespace PboTools.Service
                 await this.pboPackService.UnpackPboAsync(info, str, new DirectoryInfo(directoryPath)).ConfigureAwait(false);
             }
         }
+
+        public PboInfo GetPboInfo(string pboPath)
+        {
+            Assert.NotNull(pboPath, nameof(pboPath));
+
+            using (Stream str = File.Open(pboPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var reader = new PboBinaryReader(str))
+            {
+                PboInfo info = this.pboInfoService.ReadPboInfo(reader);
+                return info;
+            }
+        }
     }
 }

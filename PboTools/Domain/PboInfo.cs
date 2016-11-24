@@ -14,15 +14,5 @@ namespace PboTools.Domain
         public long DataBlockStart { get; set; }
 
         public byte[] Checksum { get; set; }
-
-        public PboHeaderNode GetRecordsAsTree()
-        {
-            var root = new PboHeaderNode();
-            foreach (PboHeaderEntry headerEntry in this.FileRecords)
-            {
-                root.AddEntry(headerEntry);
-            }
-            return root;
-        }
     }
 }
