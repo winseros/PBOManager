@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using LightInject;
+using Autofac;
 using NLog;
 using PboConsole.Commands;
 using PboConsole.Services;
@@ -15,15 +15,15 @@ namespace PboConsole
         {
             logger.Info("Started the console application");
 
-            using (var container = new ServiceContainer())
-            {
-                container.SetDefaultLifetime<PerContainerLifetime>();
-                container.RegisterFrom<PboTools.CompositionRoot>();
-                container.RegisterFrom<CompositionRoot>();
+            var builder = new ContainerBuilder();
+            builder.RegisterModule<PboTools.AutofacModule>();
+            builder.RegisterModule<AutofacModule>();
 
+            using (IContainer container = builder.Build())
+            {
                 logger.Debug("Container configuration complete");
 
-                var core = container.GetInstance<ConsoleCore>();
+                var core = container.Resolve<ConsoleCore>();
                 IConsoleCommand command = core.GetCommand(args);
 
                 logger.Info("The following command has been chosen according to the input args: {0}", command);
@@ -37,7 +37,7 @@ namespace PboConsole
             }
         }
 
-        private static void TryExec(IConsoleCommand command, IServiceContainer container)
+        private static void TryExec(IConsoleCommand command, IContainer container)
         {
             try
             {
@@ -48,7 +48,7 @@ namespace PboConsole
                 logger.Fatal(ex);
 
                 var inner = ex.InnerExceptions.First();
-                var console = container.GetInstance<IConsoleService>();
+                var console = container.Resolve<IConsoleService>();
                 console.WriteException(inner);
             }
         }

@@ -6,7 +6,13 @@ namespace PboManager.Components.PboTree
 {
     public class PboTreeModel : ReactiveObject
     {
+        private readonly IPboTreeContext context;
         private PboNodeModel rootNode;
+
+        public PboTreeModel(IPboTreeContext context)
+        {
+            this.context = context;
+        }
 
         public void LoadPbo(PboInfo pboInfo, string fileName)
         {
@@ -17,14 +23,13 @@ namespace PboManager.Components.PboTree
             foreach (PboHeaderEntry headerEntry in pboInfo.FileRecords)
                 builder.AddEntry(headerEntry);
 
-            this.rootNode = builder.Build();
+            this.rootNode = builder.Build(this.context);
 
             using (this.Root.SuppressChangeNotifications())
             {
                 this.Root.Clear();
                 this.Root.Add(this.rootNode);
             }
-           
         }
 
         public ReactiveList<PboNodeModel> Root { get; } = new ReactiveList<PboNodeModel>();

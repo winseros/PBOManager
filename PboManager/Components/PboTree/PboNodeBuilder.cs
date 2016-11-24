@@ -7,19 +7,14 @@ using Util;
 
 namespace PboManager.Components.PboTree
 {
-    public class PboNodeBuilder: IComparer<PboNodeModel>
+    public class PboNodeBuilder : IComparer<PboNodeModel>
     {
-        private static readonly char[] PathSeparators = { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
+        private static readonly char[] PathSeparators = {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar};
         private readonly IDictionary<string, PboNodeBuilder> children = new Dictionary<string, PboNodeBuilder>();
-
         private readonly string name;
         private readonly PboHeaderEntry entry;
 
-        public PboNodeBuilder()
-        {
-        }
-
-        public PboNodeBuilder(string name, PboHeaderEntry entry = null)
+        public PboNodeBuilder(string name, PboHeaderEntry entry = null) 
         {
             Assert.NotNull(name, nameof(name));
             this.name = name;
@@ -50,15 +45,21 @@ namespace PboManager.Components.PboTree
             return this;
         }
 
-        public PboNodeModel Build()
+        public PboNodeModel Build(IPboTreeContext context)
         {
-            var model = new PboNodeModel {NodeName = this.name};
+            Assert.NotNull(context, nameof(context));
+
+            PboNodeModel model = context.GetPboNodeModel(this.entry);
+            model.NodeName = this.name;
+            model.Initialize();
+            
             foreach (PboNodeBuilder value in this.children.Values)
             {
-                PboNodeModel child = value.Build();
-                model.Children.Add(child);
-                model.Children.Sort(this);                
+                PboNodeModel child = value.Build(context);
+                model.Children.Add(child);                
             }
+
+            model.Children.Sort(this);
 
             return model;
         }
@@ -67,10 +68,10 @@ namespace PboManager.Components.PboTree
 
         public int Compare(PboNodeModel x, PboNodeModel y)
         {
-            if (object.ReferenceEquals(x, y))
+            if (ReferenceEquals(x, y))
                 return 0;
 
-            if (x.IsFolder != y.IsFolder) return x.IsFolder ? 1 : -1;
+            if (x.IsDirectory != y.IsDirectory) return x.IsDirectory ? -1 : 1;
 
             int result = string.Compare(x.NodeName, y.NodeName, StringComparison.InvariantCulture);
             return result;

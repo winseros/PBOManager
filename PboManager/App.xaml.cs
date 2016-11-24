@@ -1,31 +1,30 @@
 ﻿using System.Windows;
-using LightInject;
-using PboManager.Components;
+using Autofac;
 using PboManager.Components.MainWindow;
 
 namespace PboManager
 {
     public partial class App : Application
     {
-        private readonly ServiceContainer compositionRoot = new ServiceContainer();
+        private IContainer container;
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
             
-            this.compositionRoot.EnableAutoFactories();            
-            this.compositionRoot.SetDefaultLifetime<PerContainerLifetime>();
-            this.compositionRoot.RegisterFrom<PboTools.CompositionRoot>();
-            this.compositionRoot.RegisterFrom<CompositionRoot>();
-
-            var mainWindowModel = this.compositionRoot.GetInstance<MainWindowModel>();
+            var builder = new ContainerBuilder();
+            builder.RegisterModule<PboTools.AutofacModule>();
+            builder.RegisterAssemblyModules(typeof(App).Assembly);
+            this.container = builder.Build();
+            
+            var mainWindowModel = this.container.Resolve<MainWindowModel>();
             new MainWindow(mainWindowModel).Show();
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
             base.OnExit(e);
-            this.compositionRoot.Dispose();
+            this.container.Dispose();
         }
     }
 }
