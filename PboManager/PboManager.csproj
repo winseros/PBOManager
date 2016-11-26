@@ -110,18 +110,24 @@
     <Compile Include="Components\MainWindow\MainWindowModel.cs" />
     <Compile Include="Components\MainWindow\MainWindowModule.cs" />
     <Compile Include="Components\PboTree\IPboTreeContext.cs" />
-    <Compile Include="Components\PboTree\PboNodeBuilder.cs" />
-    <Compile Include="Components\PboTree\PboNodeModel.cs" />
-    <Compile Include="Components\PboTree\PboTree.xaml.cs">
-      <DependentUpon>PboTree.xaml</DependentUpon>
+    <Compile Include="Components\PboTree\PboTreeDirectory.cs" />
+    <Compile Include="Components\PboTree\PboTreeNode.cs" />
+    <Compile Include="Components\PboTree\PboTreeNodeComparer.cs" />
+    <Compile Include="Components\PboTree\PboTreeView.xaml.cs">
+      <DependentUpon>PboTreeView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Components\PboTree\PboTreeFile.cs" />
     <Compile Include="Components\PboTree\PboTreeModel.cs" />
     <Compile Include="Components\PboTree\PboTreeModule.cs" />
+    <Compile Include="Components\PboTree\PboTreeNodeView.xaml.cs">
+      <DependentUpon>PboTreeNodeView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Services\ExceptionService\ExceptionServiceImpl.cs" />
     <Compile Include="Services\ExceptionService\ExceptionWindow.xaml.cs">
       <DependentUpon>ExceptionWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Services\ExceptionService\IExceptionService.cs" />
+    <Compile Include="Services\FileIconService\CachingFileIconServiceImpl.cs" />
     <Compile Include="Services\FileIconService\FileIconServiceImpl.cs" />
     <Compile Include="Services\FileIconService\IconReader.cs" />
     <Compile Include="Services\FileIconService\IFileIconService.cs" />
@@ -147,7 +153,11 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Components\PboTree\PboTree.xaml">
+    <Page Include="Components\PboTree\PboTreeView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Components\PboTree\PboTreeNodeView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

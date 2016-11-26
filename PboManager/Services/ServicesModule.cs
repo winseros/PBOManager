@@ -15,7 +15,7 @@ namespace PboManager.Services
             logger.Debug("Building the module");
 
             builder.RegisterType<ExceptionServiceImpl>().As<IExceptionService>().SingleInstance();
-            builder.RegisterType<FileIconServiceImpl>().As<IFileIconService>().SingleInstance();
+            builder.RegisterInstance(new CachingFileIconServiceImpl(new FileIconServiceImpl())).As<IFileIconService>();            
         }
     }
 }

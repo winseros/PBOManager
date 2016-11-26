@@ -1,4 +1,5 @@
-﻿using PboTools.Domain;
+﻿using System.IO;
+using PboTools.Domain;
 using ReactiveUI;
 using Util;
 
@@ -7,7 +8,7 @@ namespace PboManager.Components.PboTree
     public class PboTreeModel : ReactiveObject
     {
         private readonly IPboTreeContext context;
-        private PboNodeModel rootNode;
+        private PboTreeNode rootNode;
 
         public PboTreeModel(IPboTreeContext context)
         {
@@ -17,21 +18,25 @@ namespace PboManager.Components.PboTree
         public void LoadPbo(PboInfo pboInfo, string fileName)
         {
             Assert.NotNull(pboInfo, nameof(pboInfo));
+            Assert.NotNull(pboInfo.FileRecords, "pboInfo.FileRecords");
             Assert.NotNull(fileName, nameof(fileName));
 
-            var builder = new PboNodeBuilder(fileName);
-            foreach (PboHeaderEntry headerEntry in pboInfo.FileRecords)
-                builder.AddEntry(headerEntry);
+            this.rootNode = new PboTreeDirectory(this.context)
+            {
+                Name = Path.GetFileName(fileName)
+            };
+            foreach (PboHeaderEntry fileRecord in pboInfo.FileRecords)
+                this.rootNode.AddEntry(fileRecord);
 
-            this.rootNode = builder.Build(this.context);
+            this.rootNode.Sort();
 
-            using (this.Root.SuppressChangeNotifications())
+            using (this.rootNode.SuppressChangeNotifications())
             {
                 this.Root.Clear();
                 this.Root.Add(this.rootNode);
             }
         }
 
-        public ReactiveList<PboNodeModel> Root { get; } = new ReactiveList<PboNodeModel>();
+        public ReactiveList<PboTreeNode> Root { get; } = new ReactiveList<PboTreeNode>();
     }
 }

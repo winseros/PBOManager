@@ -17,7 +17,7 @@
         </Grid.RowDefinitions>
 
         <mainMenu:MainMenu Grid.Row="0" DataContext="{Binding MainMenu, Mode=OneTime}"/>
-        <pboTree:PboTree Grid.Row="1" DataContext="{Binding TreeModel, Mode=OneTime}"/>
+        <pboTree:PboTreeView Grid.Row="1" DataContext="{Binding TreeModel, Mode=OneTime}"/>
 
     </Grid>
 </Window>

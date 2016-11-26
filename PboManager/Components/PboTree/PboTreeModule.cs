@@ -14,7 +14,6 @@ namespace PboManager.Components.PboTree
             logger.Debug("Building the module");
 
             builder.RegisterType<PboTreeModel>().SingleInstance();
-            builder.RegisterType<PboNodeModel>().ExternallyOwned();
             builder.RegisterAggregateService<IPboTreeContext>();
         }
     }
