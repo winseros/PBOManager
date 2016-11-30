@@ -60,6 +60,7 @@
     <Compile Include="Service\FileAlreadyExistsException.cs" />
     <Compile Include="Service\ILzhService.cs" />
     <Compile Include="Service\IPboArchiverService.cs" />
+    <Compile Include="Service\ITimestampService.cs" />
     <Compile Include="Service\LzhService.cs" />
     <Compile Include="Service\PboArchiverService.cs" />
     <Compile Include="Service\PboBinaryWriter.cs" />
@@ -71,6 +72,7 @@
     <Compile Include="Service\PboInfoService.cs" />
     <Compile Include="Service\PboUnpackFlags.cs" />
     <Compile Include="Service\PboPackService.cs" />
+    <Compile Include="Service\TimestampService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Util\Util.csproj">

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.IO;
@@ -11,7 +10,12 @@ namespace PboTools.Service
 {
     public class PboInfoService : IPboInfoService
     {
-        private static readonly DateTime Date1970 = new DateTime(1970, 1, 1);
+        private readonly ITimestampService timestampService;
+
+        public PboInfoService(ITimestampService timestampService)
+        {
+            this.timestampService = timestampService;
+        }
 
         public PboInfo ReadPboInfo(PboBinaryReader reader)
         {
@@ -76,6 +80,8 @@ namespace PboTools.Service
                 headerEntry.DataOffset = currentOffset;
                 currentOffset += headerEntry.DataSize;
             }
+
+            info.DataBlockEnd = currentOffset;
         }
 
         private NameValueCollection ReadHeaderExtensions(PboBinaryReader reader)
@@ -175,13 +181,35 @@ namespace PboTools.Service
 
         private PboHeaderEntry GetHeaderEntry(FileInfo file, DirectoryInfo directory)
         {
-            var result = new PboHeaderEntry();
+            var result = new PboHeaderEntry
+            {
+                FileName = file.FullName.Substring(directory.FullName.Length + 1, file.FullName.Length - directory.FullName.Length - 1)
+            };
 
-            result.FileName = file.FullName.Substring(directory.FullName.Length + 1, file.FullName.Length - directory.FullName.Length - 1);
-            result.PackingMethod = PboPackingMethod.Uncompressed;
-            result.OriginalSize = (int) file.Length;
-            result.TimeStamp = (int) file.LastWriteTimeUtc.Subtract(Date1970).TotalSeconds;
-            result.DataSize = result.OriginalSize;
+            this.InflateEntry(result, file);
+
+            return result;
+        }
+
+        private void InflateEntry(PboHeaderEntry entry, FileInfo file)
+        {
+            entry.PackingMethod = PboPackingMethod.Uncompressed;
+            entry.OriginalSize = (int)file.Length;
+            entry.TimeStamp = this.timestampService.GetTimestamp(file.FullName);
+            entry.DataSize = entry.OriginalSize;
+        }
+
+        public PboHeaderEntry CollectEntry(string filePath, string entryPath)
+        {
+            Assert.NotNull(filePath, nameof(filePath));
+            Assert.NotNull(entryPath, nameof(entryPath));
+
+            var result = new PboHeaderEntry
+            {
+                FileName = Path.Combine(entryPath, Path.GetFileName(filePath))
+            };
+
+            this.InflateEntry(result, new FileInfo(filePath));
 
             return result;
         }

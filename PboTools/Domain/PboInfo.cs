@@ -13,6 +13,8 @@ namespace PboTools.Domain
 
         public long DataBlockStart { get; set; }
 
+        public long DataBlockEnd { get; set; }
+
         public byte[] Checksum { get; set; }
     }
 }

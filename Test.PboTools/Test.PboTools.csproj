@@ -59,6 +59,7 @@
     <Compile Include="Service\PboDiskServiceTest.cs" />
     <Compile Include="Service\PboInfoServiceTest.cs" />
     <Compile Include="Service\PboPackServiceTest.cs" />
+    <Compile Include="Service\TimestampServiceTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

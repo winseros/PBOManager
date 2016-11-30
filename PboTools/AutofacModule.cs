@@ -18,6 +18,7 @@ namespace PboTools
             builder.RegisterType<PboDiskService>().As<IPboDiskService>().SingleInstance();
             builder.RegisterType<PboInfoService>().As<IPboInfoService>().SingleInstance();
             builder.RegisterType<PboPackService>().As<IPboPackService>().SingleInstance();
+            builder.RegisterType<TimestampService>().As<ITimestampService>().SingleInstance();
         }
     }
 }

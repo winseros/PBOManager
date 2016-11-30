@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
+using NSubstitute;
 using NUnit.Framework;
 using PboTools.Domain;
 using PboTools.Service;
@@ -11,9 +13,17 @@ namespace Test.PboTools.Service
 {
     public class PboInfoServiceTest
     {
+        private ITimestampService timestampService;
+
+        [SetUp]
+        public void SetUp()
+        {
+            this.timestampService = Substitute.For<ITimestampService>();
+        }
+
         private PboInfoService GetService()
         {
-            return new PboInfoService();
+            return new PboInfoService(this.timestampService);
         }
 
         [Test]
@@ -99,6 +109,8 @@ namespace Test.PboTools.Service
                 CollectionAssert.AreEqual(sha1, info.Checksum);
 
                 Assert.AreEqual(rc1.DataOffset, info.DataBlockStart);
+                Assert.AreEqual(rc3.DataOffset + rc3.DataSize, info.DataBlockEnd);
+                Assert.AreEqual(stream.Length - sha1.Length - 1, info.DataBlockEnd);//-1 - 1 0x00 byte between data and hash
             }
         }
 
@@ -325,6 +337,15 @@ namespace Test.PboTools.Service
                 File.WriteAllText(filename, $"file {Math.Pow(10, i)} contents");
             }
 
+            this.timestampService.GetTimestamp(null).ReturnsForAnyArgs(call =>
+                {
+                    var arg = call.Arg<FileInfo>();
+                    Match m = Regex.Match(arg.Name, @"file(\d)\.txt");
+                    Capture c = m.Groups[1].Captures[0];
+                    int result = Int32.Parse(c.Value);
+                    return result;
+                });
+
             PboInfoService service = this.GetService();
             PboInfo info = service.CollectPboInfo(dir);
 
@@ -362,7 +383,7 @@ namespace Test.PboTools.Service
             Assert.AreEqual(PboPackingMethod.Uncompressed, rc1.PackingMethod);
             Assert.AreEqual(16, rc1.OriginalSize);
             Assert.AreEqual(0, rc1.Reserved);
-            Assert.AreNotEqual(0, rc1.TimeStamp);
+            Assert.AreEqual(1, rc1.TimeStamp);
             Assert.AreEqual(16, rc1.DataSize);
             Assert.AreEqual(0, rc1.DataOffset);
 
@@ -372,7 +393,7 @@ namespace Test.PboTools.Service
             Assert.AreEqual(PboPackingMethod.Uncompressed, rc2.PackingMethod);
             Assert.AreEqual(17, rc2.OriginalSize);
             Assert.AreEqual(0, rc2.Reserved);
-            Assert.AreNotEqual(0, rc2.TimeStamp);
+            Assert.AreEqual(2, rc2.TimeStamp);
             Assert.AreEqual(17, rc2.DataSize);
             Assert.AreEqual(0, rc2.DataOffset);
 
@@ -382,11 +403,62 @@ namespace Test.PboTools.Service
             Assert.AreEqual(PboPackingMethod.Uncompressed, rc3.PackingMethod);
             Assert.AreEqual(18, rc3.OriginalSize);
             Assert.AreEqual(0, rc3.Reserved);
-            Assert.AreNotEqual(0, rc3.TimeStamp);
+            Assert.AreEqual(3, rc3.TimeStamp);
             Assert.AreEqual(18, rc3.DataSize);
             Assert.AreEqual(0, rc3.DataOffset);
 
             #endregion
+        }
+
+
+        [Test]
+        public void Test_CollectEntry_Throws_If_Called_With_Illegal_Args()
+        {
+            PboInfoService service = this.GetService();
+
+            TestDelegate caller = () => service.CollectEntry(null, null);
+            var ex = Assert.Catch<ArgumentException>(caller);
+            StringAssert.Contains("filePath", ex.Message);
+
+            caller = () => service.CollectEntry(@"c:\someFile.txt", null);
+            ex = Assert.Catch<ArgumentException>(caller);
+            StringAssert.Contains("entryPath", ex.Message);
+        }
+
+        [Test]
+        public void Test_CollectEntry_Returns_Entry_Info()
+        {
+            this.timestampService.GetTimestamp(null).ReturnsForAnyArgs(100500);
+
+            PboInfoService service = this.GetService();
+
+            const string entryPath = @"/client/scripts/";
+            const string entryContents = "some-pbo-file-contents";
+            string filePath = CreateTempFile(entryContents);
+            PboHeaderEntry entry = service.CollectEntry(filePath, entryPath);
+
+            string fileName = Path.GetFileName(filePath);
+            string entryName = Path.Combine(entryPath, fileName);
+
+            Assert.NotNull(entry);
+            Assert.AreEqual(entryName, entry.FileName);
+            Assert.AreEqual(PboPackingMethod.Uncompressed, entry.PackingMethod);
+            Assert.AreEqual(0, entry.Reserved);
+            Assert.AreEqual(100500, entry.TimeStamp);
+            Assert.AreEqual(entryContents.Length, entry.OriginalSize);
+            Assert.AreEqual(entryContents.Length, entry.DataSize);
+            Assert.AreEqual(0, entry.DataOffset);
+        }
+
+        private static string CreateTempFile(string contents)
+        {
+            string random = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            using (Stream str = File.Open(random, FileMode.CreateNew, FileAccess.Write, FileShare.Read))
+            {
+                str.Write(Encoding.UTF8.GetBytes(contents), 0, contents.Length);
+                str.Flush();
+            }
+            return random;
         }
     }
 }
