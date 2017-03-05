@@ -84,6 +84,27 @@ namespace Test.PboTools.Domain
         }
 
         [Test]
+        public void Test_IsContent_Returns_True()
+        {
+            var entry = new PboHeaderEntry();
+
+            entry.PackingMethod = PboPackingMethod.Packed;
+            Assert.True(entry.IsContent);
+
+            entry.PackingMethod = PboPackingMethod.Uncompressed;
+            Assert.True(entry.IsContent);
+        }
+
+        [Test]
+        public void Test_IsContent_Returns_False()
+        {
+            var entry = new PboHeaderEntry();
+
+            entry.PackingMethod = PboPackingMethod.Product;
+            Assert.False(entry.IsContent);            
+        }
+
+        [Test]
         public void Test_GetShortFileName_Returns_A_Short_File_Name()
         {
             var entry = new PboHeaderEntry

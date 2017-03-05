@@ -5,6 +5,6 @@ namespace PboTools.Service
 {
 	public interface ILzhService
 	{
-		Task Decompress(Stream source, Stream dest, long targetLength);
+		Task<bool> Decompress(Stream source, Stream dest, long targetLength);
 	}
 }

@@ -32,12 +32,15 @@ namespace PboTools.Service
                 this.pboDiskService.TryCreateFolder(directory, flags);
                 using (Stream stream = this.pboDiskService.CreateFile(entry, directory, flags))
                 {
-                    if (entry.IsCompressed)
-                        await this.UnzipFileFromPbo(entry, pboStream, stream).ConfigureAwait(false);
-                    else
-                        await this.CopyFileFromPboAsync(entry, pboStream, stream).ConfigureAwait(false);
+                    if (entry.IsContent)
+                    {
+                        if (entry.IsCompressed)
+                            await this.UnzipFileFromPbo(entry, pboStream, stream).ConfigureAwait(false);
+                        else
+                            await this.CopyFileFromPboAsync(entry, pboStream, stream).ConfigureAwait(false);
 
-                    await stream.FlushAsync().ConfigureAwait(false);
+                        await stream.FlushAsync().ConfigureAwait(false);
+                    }
                 }
             }
             catch (InvalidFilenameException) //illegal characters in path
@@ -78,7 +81,11 @@ namespace PboTools.Service
         {
             logger.Debug("Pbo stream length is \"{0}\", entry data offset is \"{1}\"", pboStream.Length, entry.DataOffset);
             pboStream.Seek(entry.DataOffset, SeekOrigin.Begin);
-            await this.lzhService.Decompress(pboStream, file, entry.OriginalSize).ConfigureAwait(false);
+
+            bool success = await this.lzhService.Decompress(pboStream, file, entry.OriginalSize).ConfigureAwait(false);
+
+            if (!success)
+                logger.Warn("Could not unpack a compressed entry from the file - CRC error:  \"{0}\"", entry);
         }
 
         public virtual async Task PackPboAsync(PboInfo pboInfo, Stream pboStream, DirectoryInfo directory)

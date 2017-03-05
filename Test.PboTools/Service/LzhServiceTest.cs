@@ -40,8 +40,9 @@ namespace Test.PboTools.Service
             using (Stream unpackedData = new MemoryStream())
             {
                 LzhService service = this.GetService();
-                await service.Decompress(packedData, unpackedData, originalData.Length).ConfigureAwait(false);
+                bool success = await service.Decompress(packedData, unpackedData, originalData.Length).ConfigureAwait(false);                
 
+                Assert.True(success);
                 FileAssert.AreEqual(originalData, unpackedData);
             }
         }

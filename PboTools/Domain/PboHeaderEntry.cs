@@ -60,6 +60,11 @@ namespace PboTools.Domain
             get { return this.PackingMethod == PboPackingMethod.Packed && this.OriginalSize != this.DataSize; }
         }
 
+        public bool IsContent
+        {
+            get { return this.PackingMethod == PboPackingMethod.Uncompressed || this.PackingMethod == PboPackingMethod.Packed; }
+        }
+
         public string GetShortFileName()
         {
             return Path.GetFileName(this.FileName);

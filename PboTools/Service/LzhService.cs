@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Util;
@@ -8,8 +9,9 @@ namespace PboTools.Service
     public class LzhService : ILzhService
     {
         private const int PacketFormatUncompressed = 1;
+        private const byte Space = 0x20;
 
-        public async Task Decompress(Stream source, Stream dest, long targetLength)
+        public async Task<bool> Decompress(Stream source, Stream dest, long targetLength)
         {
             Assert.NotNull(source, nameof(source));
             Assert.NotNull(dest, nameof(dest));
@@ -18,63 +20,124 @@ namespace PboTools.Service
             using (var reader = new BinaryReader(source, Encoding.UTF8, true))
             using (var writer = new BinaryWriter(dest, Encoding.UTF8, true))
             {
-                var buffer = new byte[18];
+                var ctx = new ProcessContext {Reader = reader, Writer = writer, Dest = dest};               
                 long noOfBytes = dest.Position + targetLength;
                 while (dest.Position < noOfBytes && source.CanRead)
                 {
                     byte format = reader.ReadByte();
-                    byte i = 0;
-                    while (i < 8 && dest.Position < noOfBytes && source.Position < source.Length - 2)
+                    for (byte i = 0; i < 8 && dest.Position < noOfBytes && source.Position < source.Length - 2; i++)
                     {
-                        int bit = format >> i & 0x01;
-                        this.ProcessBlock(reader, writer, dest, bit, buffer);
+                        ctx.Format = format >> i & 0x01;
+                        this.ProcessBlock(ctx);
                         await Task.Yield();
-                        i++;
                     }
                 }
+                bool isValid = this.Validate(ctx);
+                return isValid;
             }
         }
 
-        private void ProcessBlock(BinaryReader reader, BinaryWriter writer, Stream dest, int format, byte[] buffer)
+        private bool Validate(ProcessContext ctx)
         {
-            if (format == LzhService.PacketFormatUncompressed)
+            const byte intLength = 0;
+            bool valid = false;            
+            Stream source = ctx.Reader.BaseStream;
+            if (source.Length - source.Position >= intLength)
             {
-                byte data = reader.ReadByte();
-                writer.Write(data);
+                uint crc = ctx.Reader.ReadUInt32();
+                valid = crc == ctx.Crc;
+            }
+            return valid;
+        }
+
+        private void ProcessBlock(ProcessContext ctx)
+        {  
+            if (ctx.Format == LzhService.PacketFormatUncompressed)
+            {
+                byte data = ctx.Reader.ReadByte();
+                ctx.Write(data);
             }
             else
             {
-                short pointer = reader.ReadInt16();
-                long rpos = dest.Position - ((pointer & 0x00FF) + ((pointer & 0xF000) >> 4));
-                if (rpos < 0) rpos = 0;
-                int rlen = ((pointer & 0x0F00) >> 8) + 3;
+                short pointer = ctx.Reader.ReadInt16();
+                long rpos = ctx.Dest.Position - ((pointer & 0x00FF) + ((pointer & 0xF000) >> 4));                
+                byte rlen = (byte)(((pointer & 0x0F00) >> 8) + 3);
 
                 if (rpos + rlen < 0)
                 {
                     for (var i = 0; i < rlen; i++)
-                        writer.Write(0x20);
+                    ctx.Write(LzhService.Space);
                 }
                 else
                 {
-                    int bytesToCopy = rpos + rlen > dest.Position ? (int)(dest.Position - rpos) : rlen;
-                    if (bytesToCopy > 0)
+                    while (rpos < 0)
                     {
-                        dest.Seek(rpos, SeekOrigin.Begin);
-                        dest.Read(buffer, 0, bytesToCopy);
-                        dest.Seek(0, SeekOrigin.End);
-                    
-                        int bytesLeft = rlen;
-                        while (bytesLeft >= bytesToCopy)
-                        {
-                            writer.Write(buffer, 0, bytesToCopy);
-                            bytesLeft -= bytesToCopy;
-                        }
-                        for (int j = 0; j < bytesLeft; j++)
-                        {
-                            writer.Write(buffer[j]);
-                        }
+                        ctx.Write(LzhService.Space);
+                        rpos++;
+                        rlen--;
                     }
+                    if (rlen > 0)
+                    {
+                        byte chunkSize = rpos + rlen > ctx.Dest.Position ? (byte)(ctx.Dest.Position - rpos) : rlen;
+                        ctx.SetBuffer(rpos, chunkSize);
+
+                        while (rlen >= chunkSize)
+                        {
+                            ctx.Write(ctx.Buffer, chunkSize);
+                            rlen -= chunkSize;
+                        }
+                        for (int j = 0; j < rlen; j++)
+                        {
+                            ctx.Write(ctx.Buffer[j]);
+                        }
+                    }                    
                 }
+            }
+        }
+
+        private class ProcessContext
+        {
+            internal BinaryReader Reader;
+            internal BinaryWriter Writer;
+            internal Stream Dest;
+            internal int Format;
+            internal readonly byte[] Buffer = new byte[18];
+            internal uint Crc;
+
+            private void UpdateCrc(byte data)
+            {
+                unchecked
+                {
+                    this.Crc += data;
+                }
+            }
+
+            private void UpdateCrc(byte[] chunk, byte chunkSize)
+            {
+                unchecked
+                {
+                    for (byte i = 0; i < chunkSize; i++)
+                        this.Crc += chunk[i];
+                }
+            }
+
+            internal void Write(byte data)
+            {
+                this.Writer.Write(data);
+                this.UpdateCrc(data);
+            }
+
+            internal void Write(byte[] chunk, byte chunkSize)
+            {
+                this.Writer.Write(chunk, 0, chunkSize);
+                this.UpdateCrc(chunk, chunkSize);
+            }
+
+            internal void SetBuffer(long offset, byte length)
+            {
+                this.Dest.Seek(offset, SeekOrigin.Begin);
+                this.Dest.Read(this.Buffer, 0, length);
+                this.Dest.Seek(0, SeekOrigin.End);
             }
         }
     }

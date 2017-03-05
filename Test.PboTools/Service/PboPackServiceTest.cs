@@ -114,6 +114,7 @@ namespace Test.PboTools.Service
             //internal services mocks
             var outputStream = new MemoryStream();
             this.diskService.CreateFile(null, null, PboUnpackFlags.None).ReturnsForAnyArgs(outputStream);
+            this.lzhService.Decompress(null, null, 0).ReturnsForAnyArgs(true);//decompression success
 
             //call the method
             PboPackService service = this.GetService();
@@ -126,6 +127,36 @@ namespace Test.PboTools.Service
 
             //verify the pboStream position has been set for unpacking
             Assert.AreEqual(entry.DataOffset, pboStream.Position);
+        }
+
+        [Test]
+        public void Test_UnpackEntryAsync_Handles_Decompression_Failures()
+        {
+            //prepare input data
+            var pboFlags = PboUnpackFlags.CreateFolder | PboUnpackFlags.OverwriteFiles;
+            var dir = new DirectoryInfo(Path.GetTempPath());
+            var entry = new PboHeaderEntry
+            {
+                FileName = "mission.sqm",
+                DataOffset = 10,
+                DataSize = 50,
+                OriginalSize = 20,
+                PackingMethod = PboPackingMethod.Packed
+            };
+            var pboStream = new MemoryStream();
+
+            //internal services mocks
+            var outputStream = new MemoryStream();
+            this.diskService.CreateFile(null, null, PboUnpackFlags.None).ReturnsForAnyArgs(outputStream);
+            this.lzhService.Decompress(null, null, 0).ReturnsForAnyArgs(false);//decompression failure
+
+            //call the method
+            PboPackService service = this.GetService();
+            AsyncTestDelegate caller = async () => await service.UnpackEntryAsync(entry, pboStream, dir, pboFlags).ConfigureAwait(false);
+            Assert.DoesNotThrowAsync(caller);
+
+            //verify the mocks have been called
+            this.lzhService.Received(1).Decompress(pboStream, outputStream, entry.OriginalSize).IgnoreAwait();
         }
 
         [Test]
@@ -198,7 +229,7 @@ namespace Test.PboTools.Service
             //verify the mocks have been called
             service.Received(1).UnpackEntryAsync(pboInfo.FileRecords[0], pboStream, dir, pboFlags).IgnoreAwait();
             service.Received(1).UnpackEntryAsync(pboInfo.FileRecords[1], pboStream, dir, pboFlags).IgnoreAwait();
-        }
+        }       
 
 
         [Test]
