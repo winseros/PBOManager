@@ -1,14 +1,12 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
+using Infrastructure;
 using NSubstitute;
-using NSubstitute.Core;
 using NUnit.Framework;
 using PboTools.Domain;
 using PboTools.Service;
 using Assert = NUnit.Framework.Assert;
-using Util;
 
 namespace Test.PboTools.Service
 {
@@ -58,7 +56,7 @@ namespace Test.PboTools.Service
                 .Do(callInfo =>
                 {
                     var dir = callInfo.Arg<DirectoryInfo>();
-                    Assert.AreEqual(dirName, dir.FullName);                    
+                    Assert.AreEqual(dirName, dir.FullName);
                 });
 
             this.pboPackService.WhenForAnyArgs(packService => packService.PackPboAsync(null, null, null))
@@ -105,7 +103,7 @@ namespace Test.PboTools.Service
 
             using (File.Open(pboName, FileMode.Create, FileAccess.Write, FileShare.None))
             {
-                //just create an empty file                
+                //just create an empty file
             }
 
             //internal services mocks
@@ -147,7 +145,7 @@ namespace Test.PboTools.Service
 
             using (File.Open(pboName, FileMode.Create, FileAccess.Write, FileShare.None))
             {
-                //just create an empty file                
+                //just create an empty file
             }
 
             //internal services mocks

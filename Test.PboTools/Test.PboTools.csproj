@@ -82,13 +82,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj">
+      <Project>{40907F8A-A2A2-46B8-A50A-9799770E5C43}</Project>
+      <Name>Infrastructure</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PboTools\PboTools.csproj">
       <Project>{FA2CF01F-5A46-4BDF-9D86-A14BD23FCE68}</Project>
       <Name>PboTools</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Util\Util.csproj">
-      <Project>{AB10D03C-EA4C-4A20-9D8D-BC0B034B1F57}</Project>
-      <Name>Util</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

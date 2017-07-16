@@ -3,7 +3,7 @@ using System.Collections;
 using System.Globalization;
 using System.Text;
 
-namespace PboManager
+namespace Util
 {
     public class NLogCultureInfo : CultureInfo, ICustomFormatter
     {
@@ -20,7 +20,7 @@ namespace PboManager
                 var enumerable = arg as IEnumerable;
                 if (enumerable != null)
                 {
-                    str = FormatEnumerable(enumerable);
+                    str = NLogCultureInfo.FormatEnumerable(enumerable);
                 }
                 else
                 {

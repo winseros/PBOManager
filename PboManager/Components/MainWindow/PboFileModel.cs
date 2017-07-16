@@ -1,5 +1,6 @@
 ﻿using System.Windows.Input;
 using NLog;
+using PboManager.Components.MainMenu;
 using PboManager.Components.PboTree;
 using PboManager.Services.EventBus;
 

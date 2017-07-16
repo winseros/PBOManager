@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Windows;
 using System.Windows.Input;
 using NLog;
+using PboManager.Components.MainWindow;
 using PboManager.Services.EventBus;
 using PboManager.Services.OpenFileService;
 using PboTools.Domain;
@@ -13,6 +15,8 @@ namespace PboManager.Components.MainMenu
         private readonly IMainMenuContext context;
         private readonly ILogger logger;
 
+        private PboFileModel currentFile;
+
         [Obsolete("For XAML designer")]
         public MainMenuModel()
         {
@@ -23,22 +27,24 @@ namespace PboManager.Components.MainMenu
             this.context = context;
             this.logger = logger;
 
-            this.CommandNewFile = new Command(this.InvokeCommandNewFileSafe);
-            this.CommandOpenFile = new Command(this.InvokeCommandOpenFile);
-            this.CommandCloseFile = new Command(this.InvokeCommandCloseFile);
-        }
+            this.CommandOpenFile = new Command(this.InvokeCommandOpenFileSafe);
+            this.CommandCloseFile = new Command(this.InvokeCommandCloseFile, this.CanCommandCloseFile);
+            this.CommandExit = new Command(o => Application.Current.Shutdown());
 
-        public ICommand CommandNewFile { get; }
+            this.context.GetEventBus().Subscribe<CurrentFileChangedAction>(this.HandleCurrentFileChangedAction);
+        }
 
         public ICommand CommandOpenFile { get; }
 
         public ICommand CommandCloseFile { get; }
 
-        private void InvokeCommandNewFileSafe(object param)
+        public ICommand CommandExit { get; }
+
+        private void InvokeCommandOpenFileSafe(object param)
         {
             try
             {
-                this.InvokeCommandNewFile(param);
+                this.InvokeCommandOpenFile(param);
             }
             catch (Exception ex)
             {
@@ -47,7 +53,7 @@ namespace PboManager.Components.MainMenu
             }
         }
 
-        private void InvokeCommandNewFile(object param)
+        private void InvokeCommandOpenFile(object param)
         {
             this.logger.Debug("Opening a pbo file");
 
@@ -58,7 +64,7 @@ namespace PboManager.Components.MainMenu
                 this.logger.Debug("User selected a file: \"{0}\"", path);
                 IPboArchiverService archiverService = this.context.GetArchiverService();
                 PboInfo pboInfo = archiverService.GetPboInfo(path);
-                var action = new FileOpenedAction{Path = path, Pbo = pboInfo};
+                var action = new FileOpenedAction {Path = path, Pbo = pboInfo};
 
                 IEventBus eventBus = this.context.GetEventBus();
                 eventBus.Publish(action);
@@ -69,14 +75,21 @@ namespace PboManager.Components.MainMenu
             }
         }
 
-        private void InvokeCommandOpenFile(object param)
-        {
-            
-        }
-
         private void InvokeCommandCloseFile(object param)
         {
-            
+            var action = new FileCloseAction {File = this.currentFile};
+            this.context.GetEventBus().Publish(action);
+        }
+
+        private bool CanCommandCloseFile(object param)
+        {
+            return this.currentFile != null;
+        }
+
+        private void HandleCurrentFileChangedAction(CurrentFileChangedAction action)
+        {
+            this.currentFile = action.File;
+            ((Command)this.CommandCloseFile).RaiseCanExecuteChanged();
         }
     }
 }

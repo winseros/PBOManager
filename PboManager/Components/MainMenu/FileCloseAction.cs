@@ -1,4 +1,6 @@
-﻿namespace PboManager.Components.MainWindow
+﻿using PboManager.Components.MainWindow;
+
+namespace PboManager.Components.MainMenu
 {
     public class FileCloseAction
     {

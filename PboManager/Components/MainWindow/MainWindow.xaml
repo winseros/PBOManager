@@ -7,6 +7,7 @@
         xmlns:mainMenu="clr-namespace:PboManager.Components.MainMenu"
         xmlns:mainWindow="clr-namespace:PboManager.Components.MainWindow"
         xmlns:pboTree="clr-namespace:PboManager.Components.PboTree"
+        Title="{Binding CurrentFile, Converter={x:Static mainWindow:WindowTitleConverter.NSTANCE}}"
         mc:Ignorable="d"
         Background="#FFF0F0F0">
     
@@ -16,8 +17,8 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <mainMenu:MainMenu Grid.Row="0" DataContext="{Binding MainMenu, Mode=OneTime}" />
-        <TabControl Grid.Row="1" ItemsSource="{Binding Files, Mode=OneTime}">
+        <mainMenu:MainMenu Grid.Row="0" DataContext="{Binding MainMenu, Mode=OneTime}" TabIndex="0"/>
+        <TabControl Grid.Row="1" ItemsSource="{Binding Files, Mode=OneTime}" SelectedItem="{Binding CurrentFile}" TabIndex="1">
             <TabControl.ItemTemplate>
                 <DataTemplate>
                     <mainWindow:PboFile/>

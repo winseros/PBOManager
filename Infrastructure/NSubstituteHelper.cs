@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Util
+namespace Infrastructure
 {
     public static class NSubstituteHelper
     {

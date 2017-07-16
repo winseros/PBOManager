@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using Autofac;
 using PboManager.Components.MainWindow;
+using Util;
 
 namespace PboManager
 {
@@ -13,10 +14,11 @@ namespace PboManager
             base.OnStartup(e);
             
             var builder = new ContainerBuilder();
+            builder.RegisterModule<NLogModule>();
             builder.RegisterModule<PboTools.AutofacModule>();
             builder.RegisterAssemblyModules(typeof(App).Assembly);
             this.container = builder.Build();
-                        
+
             var mainWindow = new MainWindow();
             mainWindow.DataContext = this.container.Resolve<MainWindowModel>();
             mainWindow.Show();

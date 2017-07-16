@@ -72,12 +72,14 @@
     <Compile Include="Components\ConverterBase.cs" />
     <Compile Include="Components\MainMenu\FileOpenedAction.cs" />
     <Compile Include="Components\MainMenu\IMainMenuContext.cs" />
-    <Compile Include="Components\MainWindow\FileCloseAction.cs" />
+    <Compile Include="Components\MainWindow\CurrentFileChangedAction.cs" />
+    <Compile Include="Components\MainMenu\FileCloseAction.cs" />
     <Compile Include="Components\MainWindow\PboFile.xaml.cs">
       <DependentUpon>PboFile.xaml</DependentUpon>
     </Compile>
-    <Compile Include="NLogCultureInfo.cs" />
-    <Compile Include="NLogModule.cs" />
+    <Compile Include="Components\MainWindow\WindowTitleConverter.cs" />
+    <Compile Include="Components\PboTree\PboNodeComparer.cs" />
+    <Compile Include="Components\PboTree\SortingConverter.cs" />
     <Compile Include="Services\EventBus\EventBusImpl.cs" />
     <Compile Include="Services\EventBus\IEventBus.cs" />
     <Compile Include="Services\OpenFileService\IOpenFileService.cs" />
@@ -135,6 +137,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Resource Include="Components\PboTree\MultiSelectTreeViewItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Resource>
     <Page Include="Components\PboTree\PboTree.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

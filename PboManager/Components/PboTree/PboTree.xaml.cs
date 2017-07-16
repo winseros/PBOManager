@@ -2,11 +2,11 @@
 
 namespace PboManager.Components.PboTree
 {
-    public partial class PboTree : UserControl
+    public partial class PboTree : MultiSelectTreeView
     {
         public PboTree()
         {
-            this.InitializeComponent();            
+            this.InitializeComponent();
         }
     }
 }

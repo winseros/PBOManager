@@ -4,9 +4,9 @@ using Autofac.Core;
 using NLog;
 using NLog.Config;
 
-namespace PboManager
+namespace Util
 {
-    internal class NLogModule : Module
+    public class NLogModule : Module
     {
         private static void OnComponentPreparing(object sender, PreparingEventArgs e)
         {

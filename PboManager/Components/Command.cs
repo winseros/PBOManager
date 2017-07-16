@@ -28,7 +28,7 @@ namespace PboManager.Components
                 if (this.canExecute != can)
                 {
                     this.canExecute = can;
-                    this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+                    this.RaiseCanExecuteChanged();
                 }
             }
             return this.canExecute;
@@ -41,5 +41,10 @@ namespace PboManager.Components
         }
 
         public event EventHandler CanExecuteChanged;
+
+        public void RaiseCanExecuteChanged()
+        {
+            this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+        }
     }
 }
