@@ -7,17 +7,27 @@
         xmlns:mainMenu="clr-namespace:PboManager.Components.MainMenu"
         xmlns:mainWindow="clr-namespace:PboManager.Components.MainWindow"
         xmlns:pboTree="clr-namespace:PboManager.Components.PboTree"
-        mc:Ignorable="d">
+        mc:Ignorable="d"
+        Background="#FFF0F0F0">
     
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-
-        <mainMenu:MainMenu Grid.Row="0" DataContext="{Binding MainMenu, Mode=OneTime}"/>
-        <pboTree:PboTreeView Grid.Row="1" DataContext="{Binding TreeModel, Mode=OneTime}"/>
-
+        <mainMenu:MainMenu Grid.Row="0" DataContext="{Binding MainMenu, Mode=OneTime}" />
+        <TabControl Grid.Row="1" ItemsSource="{Binding Files, Mode=OneTime}">
+            <TabControl.ItemTemplate>
+                <DataTemplate>
+                    <mainWindow:PboFile/>
+                </DataTemplate>
+            </TabControl.ItemTemplate>
+            <TabControl.ContentTemplate>
+                <DataTemplate DataType="{x:Type mainWindow:PboFileModel}">
+                    <pboTree:PboTree DataContext="{Binding Tree, Mode=OneTime}"/>
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+        </TabControl>
     </Grid>
 </Window>

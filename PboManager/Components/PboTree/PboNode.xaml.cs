@@ -1,10 +1,10 @@
 ﻿using System.Windows.Controls;
 
-namespace PboManager.Components.MainMenu
+namespace PboManager.Components.PboTree
 {    
-    public partial class MainMenu : Menu
+    public partial class PboNode : StackPanel
     {
-        public MainMenu()
+        public PboNode()
         {
             this.InitializeComponent();
         }

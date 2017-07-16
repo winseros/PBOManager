@@ -1,18 +1,18 @@
 ﻿using PboManager.Components.MainMenu;
 using PboManager.Components.PboTree;
-using PboManager.Services.ExceptionService;
-using PboTools.Service;
+using PboManager.Services.EventBus;
+using PboTools.Domain;
 
 namespace PboManager.Components.MainWindow
 {
     public interface IMainWindowContext
     {
-        IPboArchiverService GetPboArchiverService();
-
-        IExceptionService GetExceptionService();
+        IEventBus GetEventBus();
 
         MainMenuModel GetMainMenuModel();
 
-        PboTreeModel GetPboTreeModel();
+        PboTreeModel GetPboTreeModel(PboInfo pboInfo);
+
+        PboFileModel GetPboFileModel();
     }
 }

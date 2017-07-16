@@ -1,33 +1,82 @@
-﻿using System.Reactive;
-using ReactiveUI;
+﻿using System;
+using System.Windows.Input;
+using NLog;
+using PboManager.Services.EventBus;
+using PboManager.Services.OpenFileService;
+using PboTools.Domain;
+using PboTools.Service;
 
 namespace PboManager.Components.MainMenu
 {
-    public class MainMenuModel : ReactiveObject
+    public class MainMenuModel : ViewModel
     {
         private readonly IMainMenuContext context;
-        private string currentFileName;
+        private readonly ILogger logger;
 
-        public MainMenuModel(IMainMenuContext context)
+        [Obsolete("For XAML designer")]
+        public MainMenuModel()
+        {
+        }
+
+        public MainMenuModel(IMainMenuContext context, ILogger logger)
         {
             this.context = context;
-            this.OpenFileCommand = ReactiveCommand.Create(this.OpenFile);            
+            this.logger = logger;
+
+            this.CommandNewFile = new Command(this.InvokeCommandNewFileSafe);
+            this.CommandOpenFile = new Command(this.InvokeCommandOpenFile);
+            this.CommandCloseFile = new Command(this.InvokeCommandCloseFile);
         }
 
-        public ReactiveCommand<Unit, Unit> OpenFileCommand { get; }
-        
-        public string CurrentFileName
+        public ICommand CommandNewFile { get; }
+
+        public ICommand CommandOpenFile { get; }
+
+        public ICommand CommandCloseFile { get; }
+
+        private void InvokeCommandNewFileSafe(object param)
         {
-            get { return this.currentFileName; }
-            set { this.RaiseAndSetIfChanged(ref this.currentFileName, value); }
+            try
+            {
+                this.InvokeCommandNewFile(param);
+            }
+            catch (Exception ex)
+            {
+                this.logger.Error(ex);
+                this.context.GetExceptionService().ReportException("An error occurred opening the file", ex);
+            }
         }
-        
-        private void OpenFile()
+
+        private void InvokeCommandNewFile(object param)
         {
-            IOpenPboService service = this.context.GetOpenPboService();
-            string fileName;
-            if (service.OpenFile(out fileName))
-                this.CurrentFileName = fileName;
+            this.logger.Debug("Opening a pbo file");
+
+            IOpenFileService openFileService = this.context.GetOpenFileService();
+            string path = openFileService.OpenFile();
+            if (!string.IsNullOrEmpty(path))
+            {
+                this.logger.Debug("User selected a file: \"{0}\"", path);
+                IPboArchiverService archiverService = this.context.GetArchiverService();
+                PboInfo pboInfo = archiverService.GetPboInfo(path);
+                var action = new FileOpenedAction{Path = path, Pbo = pboInfo};
+
+                IEventBus eventBus = this.context.GetEventBus();
+                eventBus.Publish(action);
+            }
+            else
+            {
+                this.logger.Debug("User cancelled a file open dialog");
+            }
         }
-    }    
+
+        private void InvokeCommandOpenFile(object param)
+        {
+            
+        }
+
+        private void InvokeCommandCloseFile(object param)
+        {
+            
+        }
+    }
 }

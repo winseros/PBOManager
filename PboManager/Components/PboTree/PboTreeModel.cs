@@ -1,42 +1,32 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
 using PboTools.Domain;
-using ReactiveUI;
-using Util;
 
 namespace PboManager.Components.PboTree
 {
-    public class PboTreeModel : ReactiveObject
+    public class PboTreeModel : PboNodeModel
     {
-        private readonly IPboTreeContext context;
-        private PboTreeNode rootNode;
-
-        public PboTreeModel(IPboTreeContext context)
+        [Obsolete("For XAML designer")]
+        public PboTreeModel()
         {
-            this.context = context;
         }
 
-        public void LoadPbo(PboInfo pboInfo, string fileName)
-        {
-            Assert.NotNull(pboInfo, nameof(pboInfo));
-            Assert.NotNull(pboInfo.FileRecords, "pboInfo.FileRecords");
-            Assert.NotNull(fileName, nameof(fileName));
+        public PboTreeModel(PboInfo pboInfo, IPboTreeContext context)
+            : base(context)
+        {            
+            this.InflateChildren(pboInfo.FileRecords);
+        }
 
-            this.rootNode = new PboTreeDirectory(this.context)
+        private void InflateChildren(IEnumerable<PboHeaderEntry> entries)
+        {            
+            foreach (PboHeaderEntry entry in entries)
             {
-                Name = Path.GetFileName(fileName)
-            };
-            foreach (PboHeaderEntry fileRecord in pboInfo.FileRecords)
-                this.rootNode.AddEntry(fileRecord);
-
-            this.rootNode.Sort();
-
-            using (this.rootNode.SuppressChangeNotifications())
-            {
-                this.Root.Clear();
-                this.Root.Add(this.rootNode);
+                if (!entry.FileName.Contains("*"))
+                {
+                    string[] path = entry.FileName.Split(new[] {"\\"}, StringSplitOptions.RemoveEmptyEntries);
+                    this.AddChild(entry, path, 0);
+                }                
             }
         }
-
-        public ReactiveList<PboTreeNode> Root { get; } = new ReactiveList<PboTreeNode>();
     }
 }

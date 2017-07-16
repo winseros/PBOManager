@@ -9,7 +9,7 @@
 
     <MenuItem Header="_File">
         <MenuItem Header="_New"/>
-        <MenuItem Header="_Open.." Name="MenuItemOpen"/>
+        <MenuItem Header="_Open.." Command="{Binding CommandNewFile, Mode=OneTime}"/>
         <MenuItem Header="_Close"/>
         <Separator/>
         <MenuItem Header="_Exit"/>

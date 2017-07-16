@@ -1,59 +1,47 @@
 ﻿using System;
-using System.IO;
-using System.Reactive.Linq;
+using System.Collections.ObjectModel;
 using PboManager.Components.MainMenu;
 using PboManager.Components.PboTree;
-using PboManager.Services.ExceptionService;
-using PboTools.Domain;
-using PboTools.Service;
-using ReactiveUI;
-using Util;
+using PboManager.Services.EventBus;
 
 namespace PboManager.Components.MainWindow
 {
-    public class MainWindowModel : ReactiveObject
+    public class MainWindowModel : ViewModel
     {
         private readonly IMainWindowContext context;
-        private readonly ObservableAsPropertyHelper<string> title;
+        private readonly ObservableCollection<PboFileModel> files = new ObservableCollection<PboFileModel>();
+
+        [Obsolete("For XAML designer")]
+        public MainWindowModel()
+        {
+        }
 
         public MainWindowModel(IMainWindowContext context)
         {
             this.context = context;
             this.MainMenu = context.GetMainMenuModel();
 
-            this.MainMenu.WhenAnyValue(p => p.CurrentFileName)
-                .Where(p => !string.IsNullOrEmpty(p))
-                .Select(Path.GetFileName)
-                .ToProperty(this, model => model.Title, out this.title);
-
-            this.MainMenu.WhenAnyValue(menu => menu.CurrentFileName)
-                .Where(p => !string.IsNullOrEmpty(p))
-                .Subscribe(this.OpenFile);
-           
-            this.TreeModel = context.GetPboTreeModel();
+            IEventBus eventBus = this.context.GetEventBus();
+            eventBus.Subscribe<FileOpenedAction>(this.HandleFileOpenedAction);
+            eventBus.Subscribe<FileCloseAction>(this.HandleFileCloseAction);
         }
 
         public MainMenuModel MainMenu { get; }
 
-        public PboTreeModel TreeModel { get; }
+        public ObservableCollection<PboFileModel> Files => this.files;
 
-        public string Title => this.title.Value;
-
-        public void OpenFile(string fileName)
+        private void HandleFileOpenedAction(FileOpenedAction action)
         {
-            Assert.NotNull(fileName, nameof(fileName));
-            try
-            {
-                IPboArchiverService archiverService = this.context.GetPboArchiverService();
-                PboInfo pboInfo = archiverService.GetPboInfo(fileName);
-                this.TreeModel.LoadPbo(pboInfo, this.Title);
-            }
-            catch (Exception ex)
-            {
-                string message = $"Could not open the file: {fileName}";
-                IExceptionService exceptionService = this.context.GetExceptionService();
-                exceptionService.ReportException(message, ex);
-            }
+            PboTreeModel tree = this.context.GetPboTreeModel(action.Pbo);
+            PboFileModel file = this.context.GetPboFileModel();
+            file.Path = action.Path;
+            file.Tree = tree;
+            this.files.Add(file);
+        }
+
+        private void HandleFileCloseAction(FileCloseAction action)
+        {
+            this.files.Remove(action.File);
         }
     }
 }

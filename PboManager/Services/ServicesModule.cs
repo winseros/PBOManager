@@ -1,20 +1,18 @@
 ﻿using Autofac;
-using NLog;
+using PboManager.Services.EventBus;
 using PboManager.Services.ExceptionService;
 using PboManager.Services.FileIconService;
+using PboManager.Services.OpenFileService;
 
 namespace PboManager.Services
 {
     public class ServicesModule : Module
     {
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-
         protected override void Load(ContainerBuilder builder)
         {
-            base.Load(builder);
-            logger.Debug("Building the module");
-
+            builder.RegisterType<EventBusImpl>().As<IEventBus>().SingleInstance();
             builder.RegisterType<ExceptionServiceImpl>().As<IExceptionService>().SingleInstance();
+            builder.RegisterType<OpenFileServiceImpl>().As<IOpenFileService>().SingleInstance();
             builder.RegisterInstance(new CachingFileIconServiceImpl(new FileIconServiceImpl())).As<IFileIconService>();            
         }
     }

@@ -16,9 +16,10 @@ namespace PboManager
             builder.RegisterModule<PboTools.AutofacModule>();
             builder.RegisterAssemblyModules(typeof(App).Assembly);
             this.container = builder.Build();
-            
-            var mainWindowModel = this.container.Resolve<MainWindowModel>();
-            new MainWindow(mainWindowModel).Show();
+                        
+            var mainWindow = new MainWindow();
+            mainWindow.DataContext = this.container.Resolve<MainWindowModel>();
+            mainWindow.Show();
         }
 
         protected override void OnExit(ExitEventArgs e)

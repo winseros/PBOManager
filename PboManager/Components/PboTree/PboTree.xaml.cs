@@ -2,9 +2,9 @@
 
 namespace PboManager.Components.PboTree
 {
-    public partial class PboTreeView : UserControl
+    public partial class PboTree : UserControl
     {
-        public PboTreeView()
+        public PboTree()
         {
             this.InitializeComponent();            
         }
