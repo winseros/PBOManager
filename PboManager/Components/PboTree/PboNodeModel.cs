@@ -2,7 +2,10 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows.Media;
+using PboManager.Components.PboTree.NodeMenu;
+using PboManager.Services.FileIconService;
 using PboTools.Domain;
 
 namespace PboManager.Components.PboTree
@@ -12,48 +15,60 @@ namespace PboManager.Components.PboTree
         private readonly IPboTreeContext context;
 
         private string name;
-        private ImageSource icon;
-        private PboNodeModel parent;
+        private readonly Lazy<ImageSource> icon;
+        private readonly Lazy<NodeMenuModel> menu;
 
-        [Obsolete("For XAML designer")]
-        public PboNodeModel()
-        {
-        }
-
-        public PboNodeModel(IPboTreeContext context)
+        public PboNodeModel(PboNodeModelContext nodeModelContext, IPboTreeContext context)
         {
             this.context = context;
+            this.name = nodeModelContext.Name;
+            this.Parent = nodeModelContext.Parent ?? this;
+            this.icon = new Lazy<ImageSource>(this.GetIcon, LazyThreadSafetyMode.None);
+            this.menu = new Lazy<NodeMenuModel>(this.GetMenu, LazyThreadSafetyMode.None);
         }
 
-        public PboNodeModel Parent
+        private ImageSource GetIcon()
         {
-            get => this.parent;
-            set { this.parent = value; this.OnPropertyChanged(); }
+            IFileIconService fileIconService = this.context.GetFileIconService();
+            bool isFolder = this.Children.Count > 0;
+            ImageSource result = isFolder
+                ? fileIconService.GetDirectoryIcon()
+                : fileIconService.GetFileIcon(Path.GetExtension(this.name));
+
+            return result;
         }
 
-        public ObservableCollection<PboNodeModel> Children { get; } = new ObservableCollection<PboNodeModel>();
+        private NodeMenuModel GetMenu()
+        {
+            NodeMenuModel nodeMenu = this.context.GetNodeMenu(this);
+            return nodeMenu;
+        }
+
+        public PboNodeModel Parent { get; }
 
         public string Name
         {
             get => this.name;
-            set { this.name = value; this.OnPropertyChanged(); }
+            private set
+            {
+                this.name = value;
+                this.OnPropertyChanged();
+            }
         }
 
-        public ImageSource Icon 
-        {
-            get => this.icon;
-            set { this.icon = value; this.OnPropertyChanged(); }
-        }
+        public ImageSource Icon => this.icon.Value;
+
+        public NodeMenuModel Menu => this.menu.Value;
+
+        public ObservableCollection<PboNodeModel> Children { get; } = new ObservableCollection<PboNodeModel>();
 
         protected void AddChild(PboHeaderEntry child, string[] path, int level)
         {
             int currentLevel = level + 1;
+            var ctx = new PboNodeModelContext{Name = path[level], Parent = this};
             if (path.Length == currentLevel)
             {
-                PboNodeModel file = this.context.GetPboTreeNode();
-                file.name = path[level];
-                file.parent = this;
-                file.icon = this.context.GetFileIconService().GetFileIcon(Path.GetExtension(file.name));
+                PboNodeModel file = this.context.GetPboTreeNode(ctx);
                 this.Children.Add(file);
             }
             else
@@ -61,14 +76,17 @@ namespace PboManager.Components.PboTree
                 PboNodeModel folder = this.Children.FirstOrDefault(node => node.name == path[level]);
                 if (folder == null)
                 {
-                    folder = this.context.GetPboTreeNode();
-                    folder.name = path[level];
-                    folder.parent = this;
-                    folder.icon = this.context.GetFileIconService().GetDirectoryIcon();
+                    folder = this.context.GetPboTreeNode(ctx);
                     this.Children.Add(folder);
                 }
                 folder.AddChild(child, path, currentLevel);
             }
+        }
+
+        public override string ToString()
+        {
+            string result = $"{{\"Name:\"{this.name}\"}}";
+            return result;
         }
     }
 }

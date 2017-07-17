@@ -1,7 +1,6 @@
 ﻿using PboManager.Components.MainMenu;
 using PboManager.Components.PboTree;
 using PboManager.Services.EventBus;
-using PboTools.Domain;
 
 namespace PboManager.Components.MainWindow
 {
@@ -11,8 +10,8 @@ namespace PboManager.Components.MainWindow
 
         MainMenuModel GetMainMenuModel();
 
-        PboTreeModel GetPboTreeModel(PboInfo pboInfo);
+        PboTreeModel GetPboTreeModel(PboTreeModelContext context);
 
-        PboFileModel GetPboFileModel();
+        PboFileModel GetPboFileModel(PboFileModelContext context);
     }
 }

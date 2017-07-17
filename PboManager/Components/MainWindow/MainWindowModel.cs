@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using PboManager.Components.MainMenu;
 using PboManager.Components.PboTree;
@@ -11,11 +11,6 @@ namespace PboManager.Components.MainWindow
     {
         private readonly IMainWindowContext context;
         private PboFileModel currentFile;
-
-        [Obsolete("For XAML designer")]
-        public MainWindowModel()
-        {
-        }
 
         public MainWindowModel(IMainWindowContext context)
         {
@@ -49,10 +44,19 @@ namespace PboManager.Components.MainWindow
             PboFileModel file = this.Files.FirstOrDefault(p => p.Path == action.Path);
             if (file == null)
             {
-                PboTreeModel tree = this.context.GetPboTreeModel(action.Pbo);
-                file = this.context.GetPboFileModel();
-                file.Path = action.Path;
-                file.Tree = tree;
+                var treeModelContext = new PboTreeModelContext
+                {
+                    FileName = Path.GetFileName(action.Path),
+                    Pbo = action.Pbo
+                };
+                PboTreeModel tree = this.context.GetPboTreeModel(treeModelContext);
+
+                var fileModelContext = new PboFileModelContext
+                {
+                    Path = action.Path,
+                    Tree = tree
+                };
+                file = this.context.GetPboFileModel(fileModelContext);
                 this.Files.Add(file);
             }
             this.CurrentFile = file;

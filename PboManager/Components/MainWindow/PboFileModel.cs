@@ -8,47 +8,32 @@ namespace PboManager.Components.MainWindow
 {
     public class PboFileModel : ViewModel
     {
-        private string path;
-        private string name;
-
         private readonly IEventBus eventBus;
         private readonly ILogger logger;
 
-        public PboFileModel(IEventBus eventBus, ILogger logger)
+        public PboFileModel(PboFileModelContext fileModelContext, IEventBus eventBus, ILogger logger)
         {
             this.eventBus = eventBus;
             this.logger = logger;
 
+            this.Path = fileModelContext.Path;
+            this.Name = System.IO.Path.GetFileName(fileModelContext.Path);
+            this.Tree = fileModelContext.Tree;
+
             this.CommandClose = new Command(this.HandleCommandClose);
         }
 
-        public string Path
-        {
-            get => this.path;
-            set
-            {
-                this.path = value;
-                this.Name = System.IO.Path.GetFileName(value);
-            }
-        }
+        public string Path { get; }
 
-        public string Name
-        {
-            get => this.name;
-            private set
-            {
-                this.name = value;
-                this.OnPropertyChanged();
-            }
-        }
+        public string Name { get; }
 
-        public PboTreeModel Tree { get; set; }
+        public PboTreeModel Tree { get; }
 
         public ICommand CommandClose { get; }
 
         private void HandleCommandClose(object param)
         {
-            this.logger.Debug("Closing the opened file: \"{0}\"", this.path);
+            this.logger.Debug("Closing the opened file: \"{0}\"", this.Path);
             this.eventBus.Publish(new FileCloseAction {File = this});
         }
     }

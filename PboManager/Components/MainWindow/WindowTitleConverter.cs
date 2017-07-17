@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Globalization;
+using PboManager.Converters;
 
 namespace PboManager.Components.MainWindow
 {
     public class WindowTitleConverter : ConverterBase
     {
         public static readonly WindowTitleConverter NSTANCE = new WindowTitleConverter();
-        private const string APP_NAME = "PBOManager";
 
         private WindowTitleConverter()
         {
@@ -14,11 +14,8 @@ namespace PboManager.Components.MainWindow
 
         public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            string result;
-            if (value is PboFileModel file)
-                result = string.Concat(file.Name, " - ", WindowTitleConverter.APP_NAME);
-            else
-                result = WindowTitleConverter.APP_NAME;
+            var file = value as PboFileModel;
+            string result = TextToWindowTitle.Convert(file?.Name);
             return result;
         }
     }

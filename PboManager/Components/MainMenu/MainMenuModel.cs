@@ -17,11 +17,6 @@ namespace PboManager.Components.MainMenu
 
         private PboFileModel currentFile;
 
-        [Obsolete("For XAML designer")]
-        public MainMenuModel()
-        {
-        }
-
         public MainMenuModel(IMainMenuContext context, ILogger logger)
         {
             this.context = context;

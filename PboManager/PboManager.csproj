@@ -69,6 +69,22 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Components\Command.cs" />
+    <Compile Include="Components\MainWindow\PboFileModelContext.cs" />
+    <Compile Include="Components\PboTree\NodeMenu\Items\ExtractHereMenuItemModel.cs" />
+    <Compile Include="Components\PboTree\NodeMenu\Items\DeleteMenuItemModel.cs" />
+    <Compile Include="Components\PboTree\NodeMenu\Items\SeparatorMenuItemModel.cs" />
+    <Compile Include="Components\PboTree\NodeMenu\Items\PasteMenuItemModel.cs" />
+    <Compile Include="Components\PboTree\NodeMenu\Items\CopyMenuItemModel.cs" />
+    <Compile Include="Components\PboTree\NodeMenu\Items\ExtractThereMenuItemModel.cs" />
+    <Compile Include="Components\PboTree\NodeMenu\Items\ExtractToMenuItemModel.cs" />
+    <Compile Include="Components\PboTree\PboNodeModelContext.cs" />
+    <Compile Include="Components\PboTree\PboTreeModelContext.cs" />
+    <Compile Include="Converters\TextToWindowTitle.cs" />
+    <Compile Include="Components\PboTree\NodeMenu\Items\CutMenuItemModel.cs" />
+    <Compile Include="Components\PboTree\NodeMenu\Items\RenameMenuItemModel.cs" />
+    <Compile Include="Components\PboTree\NodeMenu\Items\OpenMenuItemModel.cs" />
+    <Compile Include="Components\PboTree\NodeMenu\NodeMenuItemModel.cs" />
+    <Compile Include="Components\PboTree\NodeMenu\NodeMenuModel.cs" />
     <Compile Include="Components\ConverterBase.cs" />
     <Compile Include="Components\MainMenu\FileOpenedAction.cs" />
     <Compile Include="Components\MainMenu\IMainMenuContext.cs" />
@@ -86,7 +102,6 @@
     <Compile Include="Components\MainMenu\MainMenuModel.cs" />
     <Compile Include="Components\MainMenu\MainMenuModule.cs" />
     <Compile Include="Services\OpenFileService\OpenFileServiceImpl.cs" />
-    <Compile Include="Components\Converters\TextToWindowTitle.cs" />
     <Compile Include="Components\MainWindow\IMainWindowContext.cs" />
     <Compile Include="Components\MainWindow\MainWindowModel.cs" />
     <Compile Include="Components\MainWindow\MainWindowModule.cs" />

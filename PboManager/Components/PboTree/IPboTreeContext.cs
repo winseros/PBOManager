@@ -1,4 +1,5 @@
-﻿using PboManager.Services.FileIconService;
+﻿using PboManager.Components.PboTree.NodeMenu;
+using PboManager.Services.FileIconService;
 
 namespace PboManager.Components.PboTree
 {
@@ -6,6 +7,8 @@ namespace PboManager.Components.PboTree
     {
         IFileIconService GetFileIconService();
 
-        PboNodeModel GetPboTreeNode();
+        PboNodeModel GetPboTreeNode(PboNodeModelContext context);
+
+        NodeMenuModel GetNodeMenu(PboNodeModel node);
     }
 }
