@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Media;
-using PboManager.Components.PboTree.NodeMenu;
+using PboManager.Components.TreeMenu;
 using PboManager.Services.FileIconService;
 using PboTools.Domain;
 
@@ -16,7 +16,7 @@ namespace PboManager.Components.PboTree
 
         private string name;
         private readonly Lazy<ImageSource> icon;
-        private readonly Lazy<NodeMenuModel> menu;
+        private readonly Lazy<TreeMenuModel> menu;
 
         public PboNodeModel(PboNodeModelContext nodeModelContext, IPboTreeContext context)
         {
@@ -24,7 +24,7 @@ namespace PboManager.Components.PboTree
             this.name = nodeModelContext.Name;
             this.Parent = nodeModelContext.Parent ?? this;
             this.icon = new Lazy<ImageSource>(this.GetIcon, LazyThreadSafetyMode.None);
-            this.menu = new Lazy<NodeMenuModel>(this.GetMenu, LazyThreadSafetyMode.None);
+            this.menu = new Lazy<TreeMenuModel>(this.GetMenu, LazyThreadSafetyMode.None);
         }
 
         private ImageSource GetIcon()
@@ -38,10 +38,10 @@ namespace PboManager.Components.PboTree
             return result;
         }
 
-        private NodeMenuModel GetMenu()
+        private TreeMenuModel GetMenu()
         {
-            NodeMenuModel nodeMenu = this.context.GetNodeMenu(this);
-            return nodeMenu;
+            TreeMenuModel treeMenu = this.context.GetTreeMenu(this);
+            return treeMenu;
         }
 
         public PboNodeModel Parent { get; }
@@ -58,7 +58,7 @@ namespace PboManager.Components.PboTree
 
         public ImageSource Icon => this.icon.Value;
 
-        public NodeMenuModel Menu => this.menu.Value;
+        public TreeMenuModel Menu => this.menu.Value;
 
         public ObservableCollection<PboNodeModel> Children { get; } = new ObservableCollection<PboNodeModel>();
 

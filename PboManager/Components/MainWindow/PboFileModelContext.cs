@@ -1,4 +1,4 @@
-﻿using PboManager.Components.PboTree;
+﻿using PboTools.Domain;
 
 namespace PboManager.Components.MainWindow
 {
@@ -6,6 +6,6 @@ namespace PboManager.Components.MainWindow
     {
         public string Path;
 
-        public PboTreeModel Tree;
+        public PboInfo Pbo;
     }
 }

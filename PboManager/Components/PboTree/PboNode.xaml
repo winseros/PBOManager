@@ -4,12 +4,26 @@
             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
             xmlns:pboTree="clr-namespace:PboManager.Components.PboTree"
+            xmlns:nodeMenu="clr-namespace:PboManager.Components.TreeMenu"
+            xmlns:items="clr-namespace:PboManager.Components.TreeMenu.Items"
             mc:Ignorable="d" d:DataContext="{d:DesignInstance pboTree:PboNodeModel}"
             Orientation="Horizontal">
-
+    
     <Image Height="18" Width="18" Source="{Binding Icon}" Name="Icon"/>
     <TextBlock Text="{Binding Name}" Name="TextName" Margin="3 0 0 0"/>
 
+    <StackPanel.ContextMenu>
+        <ContextMenu ItemsSource="{Binding Menu.Items, Mode=OneTime}" UsesItemContainerTemplate="True">
+            <ContextMenu.Resources>
+                <ItemContainerTemplate DataType="{x:Type nodeMenu:TreeMenuItemModel}">
+                    <MenuItem Header="{Binding Text, Mode=OneTime}" Command="{Binding Command, Mode=OneTime}"/>
+                </ItemContainerTemplate>
+                <ItemContainerTemplate DataType="{x:Type items:SeparatorMenuItemModel}">
+                    <Separator/>
+                </ItemContainerTemplate>
+            </ContextMenu.Resources>
+        </ContextMenu>
+    </StackPanel.ContextMenu>
 </StackPanel>
 
 

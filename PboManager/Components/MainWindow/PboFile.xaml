@@ -4,6 +4,8 @@
             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
             xmlns:local="clr-namespace:PboManager.Components.MainWindow"
+            xmlns:nodeMenu="clr-namespace:PboManager.Components.TreeMenu"
+            xmlns:items="clr-namespace:PboManager.Components.TreeMenu.Items"
             d:DataContext="{d:DesignInstance local:PboFileModel}"
             mc:Ignorable="d"
             Orientation="Horizontal"
@@ -69,4 +71,17 @@
     <TextBlock Text="{Binding Name}"/>
     <Button Height="10px" Width="10px" Margin="10px 0 0 0" Command="{Binding CommandClose, Mode=OneTime}" Padding="0" Style="{StaticResource ButtonStyle}"/>
 
+    <StackPanel.ContextMenu>
+        <ContextMenu ItemsSource="{Binding ContextMenu.Items, Mode=OneTime}" UsesItemContainerTemplate="True">
+            <ContextMenu.Resources>
+                <ItemContainerTemplate DataType="{x:Type nodeMenu:TreeMenuItemModel}">
+                    <MenuItem Header="{Binding Text, Mode=OneTime}" Command="{Binding Command, Mode=OneTime}"/>
+                </ItemContainerTemplate>
+                <ItemContainerTemplate DataType="{x:Type items:SeparatorMenuItemModel}">
+                    <Separator/>
+                </ItemContainerTemplate>
+            </ContextMenu.Resources>
+        </ContextMenu>
+    </StackPanel.ContextMenu>
+    
 </StackPanel>

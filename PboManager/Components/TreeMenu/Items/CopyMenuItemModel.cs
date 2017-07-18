@@ -1,15 +1,17 @@
 ﻿using NLog;
+using PboManager.Components.PboTree;
 
-namespace PboManager.Components.PboTree.NodeMenu.Items
+namespace PboManager.Components.TreeMenu.Items
 {
-    public class CopyMenuItemModel: NodeMenuItemModel
+    public class CopyMenuItemModel: TreeMenuItemModel
     {
+        private readonly PboNodeModel node;
         private readonly IPboTreeContext context;
         private readonly ILogger logger;
 
         public CopyMenuItemModel(PboNodeModel node, IPboTreeContext context, ILogger logger) 
-            : base(node)
         {
+            this.node = node;
             this.context = context;
             this.logger = logger;
         }
@@ -21,7 +23,7 @@ namespace PboManager.Components.PboTree.NodeMenu.Items
 
         protected override void HandleExecute(object param)
         {
-            this.logger.Debug("Copying the node: \"{0}\"", this.Node);
+            this.logger.Debug("Copying the node: \"{0}\"", this.node);
         }
     }
 }

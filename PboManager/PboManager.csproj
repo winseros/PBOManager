@@ -69,22 +69,25 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Components\Command.cs" />
+    <Compile Include="Components\MainWindow\ContextMenuModel.cs" />
     <Compile Include="Components\MainWindow\PboFileModelContext.cs" />
-    <Compile Include="Components\PboTree\NodeMenu\Items\ExtractHereMenuItemModel.cs" />
-    <Compile Include="Components\PboTree\NodeMenu\Items\DeleteMenuItemModel.cs" />
-    <Compile Include="Components\PboTree\NodeMenu\Items\SeparatorMenuItemModel.cs" />
-    <Compile Include="Components\PboTree\NodeMenu\Items\PasteMenuItemModel.cs" />
-    <Compile Include="Components\PboTree\NodeMenu\Items\CopyMenuItemModel.cs" />
-    <Compile Include="Components\PboTree\NodeMenu\Items\ExtractThereMenuItemModel.cs" />
-    <Compile Include="Components\PboTree\NodeMenu\Items\ExtractToMenuItemModel.cs" />
+    <Compile Include="Components\PboTree\PboTreeMenuModel.cs" />
+    <Compile Include="Components\TreeMenu\Items\ExtractToCurrentMenuItemModel.cs" />
+    <Compile Include="Components\TreeMenu\Items\DeleteMenuItemModel.cs" />
+    <Compile Include="Components\TreeMenu\Items\SeparatorMenuItemModel.cs" />
+    <Compile Include="Components\TreeMenu\Items\PasteMenuItemModel.cs" />
+    <Compile Include="Components\TreeMenu\Items\CopyMenuItemModel.cs" />
+    <Compile Include="Components\TreeMenu\Items\ExtractToFolderMenuItemModel.cs" />
+    <Compile Include="Components\TreeMenu\Items\ExtractToMenuItemModel.cs" />
     <Compile Include="Components\PboTree\PboNodeModelContext.cs" />
     <Compile Include="Components\PboTree\PboTreeModelContext.cs" />
+    <Compile Include="Components\TreeMenu\TreeMenuModule.cs" />
     <Compile Include="Converters\TextToWindowTitle.cs" />
-    <Compile Include="Components\PboTree\NodeMenu\Items\CutMenuItemModel.cs" />
-    <Compile Include="Components\PboTree\NodeMenu\Items\RenameMenuItemModel.cs" />
-    <Compile Include="Components\PboTree\NodeMenu\Items\OpenMenuItemModel.cs" />
-    <Compile Include="Components\PboTree\NodeMenu\NodeMenuItemModel.cs" />
-    <Compile Include="Components\PboTree\NodeMenu\NodeMenuModel.cs" />
+    <Compile Include="Components\TreeMenu\Items\CutMenuItemModel.cs" />
+    <Compile Include="Components\TreeMenu\Items\RenameMenuItemModel.cs" />
+    <Compile Include="Components\TreeMenu\Items\OpenMenuItemModel.cs" />
+    <Compile Include="Components\TreeMenu\TreeMenuItemModel.cs" />
+    <Compile Include="Components\TreeMenu\TreeMenuModel.cs" />
     <Compile Include="Components\ConverterBase.cs" />
     <Compile Include="Components\MainMenu\FileOpenedAction.cs" />
     <Compile Include="Components\MainMenu\IMainMenuContext.cs" />

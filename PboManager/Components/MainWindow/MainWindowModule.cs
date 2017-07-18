@@ -9,6 +9,7 @@ namespace PboManager.Components.MainWindow
         {
             builder.RegisterType<MainWindowModel>().ExternallyOwned();
             builder.RegisterType<PboFileModel>().ExternallyOwned();
+            builder.RegisterType<ContextMenuModel>().ExternallyOwned();
             builder.RegisterAggregateService<IMainWindowContext>();
         }
     }

@@ -1,8 +1,6 @@
 ﻿using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using PboManager.Components.MainMenu;
-using PboManager.Components.PboTree;
 using PboManager.Services.EventBus;
 
 namespace PboManager.Components.MainWindow
@@ -44,17 +42,10 @@ namespace PboManager.Components.MainWindow
             PboFileModel file = this.Files.FirstOrDefault(p => p.Path == action.Path);
             if (file == null)
             {
-                var treeModelContext = new PboTreeModelContext
-                {
-                    FileName = Path.GetFileName(action.Path),
-                    Pbo = action.Pbo
-                };
-                PboTreeModel tree = this.context.GetPboTreeModel(treeModelContext);
-
                 var fileModelContext = new PboFileModelContext
                 {
                     Path = action.Path,
-                    Tree = tree
+                    Pbo = action.Pbo
                 };
                 file = this.context.GetPboFileModel(fileModelContext);
                 this.Files.Add(file);

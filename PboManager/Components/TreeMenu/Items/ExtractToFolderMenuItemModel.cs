@@ -1,22 +1,24 @@
 ﻿using NLog;
+using PboManager.Components.PboTree;
 
-namespace PboManager.Components.PboTree.NodeMenu.Items
+namespace PboManager.Components.TreeMenu.Items
 {
-    public class ExtractThereMenuItemModel: NodeMenuItemModel
+    public class ExtractToFolderMenuItemModel: TreeMenuItemModel
     {
+        private readonly PboNodeModel node;
         private readonly IPboTreeContext context;
         private readonly ILogger logger;
 
-        public ExtractThereMenuItemModel(PboNodeModel node, IPboTreeContext context, ILogger logger) 
-            : base(node)
+        public ExtractToFolderMenuItemModel(PboNodeModel node, IPboTreeContext context, ILogger logger)
         {
+            this.node = node;
             this.context = context;
             this.logger = logger;
         }
 
         protected override string GetMenuItemText()
         {
-            PboNodeModel item = this.Node;
+            PboNodeModel item = this.node;
             while (item != item.Parent)
                 item = item.Parent;
 
@@ -25,7 +27,7 @@ namespace PboManager.Components.PboTree.NodeMenu.Items
 
         protected override void HandleExecute(object param)
         {
-            this.logger.Debug("Extracting the node to the *.pbo folder: \"{0}\"", this.Node);
+            this.logger.Debug("Extracting the node to the *.pbo folder: \"{0}\"", this.node);
         }
     }
 }

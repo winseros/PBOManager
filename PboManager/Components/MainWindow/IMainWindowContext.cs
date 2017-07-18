@@ -10,6 +10,8 @@ namespace PboManager.Components.MainWindow
 
         MainMenuModel GetMainMenuModel();
 
+        ContextMenuModel GetContextMenuModel(PboNodeModel node);
+
         PboTreeModel GetPboTreeModel(PboTreeModelContext context);
 
         PboFileModel GetPboFileModel(PboFileModelContext context);
