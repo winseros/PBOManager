@@ -55,6 +55,19 @@ namespace Test.PboTools.Service
         {
             PboDiskService service = this.GetService();
 
+            TestDelegate caller = () => service.CreateFile(new PboHeaderEntry{FileName = "  "}, new DirectoryInfo(@"C:\"), 0);
+            var ex = Assert.Catch<InvalidFilenameException>(caller);
+            StringAssert.Contains("The file name requested is illegal and can not be used", ex.Message);
+
+            caller = () => service.CreateFile(new PboHeaderEntry { FileName = "\t\t" }, new DirectoryInfo(@"C:\"), 0);
+            ex = Assert.Catch<InvalidFilenameException>(caller);
+            StringAssert.Contains("The file name requested is illegal and can not be used", ex.Message);
+        }
+
+        public void Test_CreateFile_Throws_If_Filename_Consists_Of_Spaces()
+        {
+            PboDiskService service = this.GetService();
+
             TestDelegate caller = () => service.CreateFile(null, null, 0);
             var ex = Assert.Catch<ArgumentException>(caller);
             StringAssert.Contains("entry", ex.Message);

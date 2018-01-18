@@ -26,6 +26,9 @@ namespace PboTools.Service
             if (string.IsNullOrEmpty(entry.FileName))
                 throw new ArgumentException("The entry provided should have a non-empty FileName");
 
+            if (string.IsNullOrWhiteSpace(entry.FileName))
+                throw new InvalidFilenameException(entry.FileName);
+
             var useFullPath = (flags & PboUnpackFlags.WithFullPath) == PboUnpackFlags.WithFullPath;
             string fileName = useFullPath ? entry.FileName : Path.GetFileName(entry.FileName);
             string filePath = Path.Combine(folder.FullName, fileName);
@@ -69,6 +72,11 @@ namespace PboTools.Service
             : base("The file name requested is illegal and can not be used", innerException)
         {
             this.FileName = fileName;
+        }
+
+        public InvalidFilenameException(string fileName) 
+            : this(fileName, null)
+        {
         }
 
         public string FileName { get; }
