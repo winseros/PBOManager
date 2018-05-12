@@ -327,10 +327,11 @@ namespace Test.PboTools.Service
             StringAssert.Contains("directory", ex.Message);
         }
 
-        [Test]
-        public void Test_CollectPboInfo_Collects_The_Folder_Info()
+        [TestCase("")]
+        [TestCase("\\")]
+        public void Test_CollectPboInfo_Collects_The_Folder_Info(string suffix)
         {
-            DirectoryInfo dir = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()));            
+            DirectoryInfo dir = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), Guid.NewGuid() + suffix));
             for (int i = 1; i <= 3; i++)
             {
                 string filename = Path.Combine(dir.FullName, $"file{i}.txt");
@@ -339,8 +340,8 @@ namespace Test.PboTools.Service
 
             this.timestampService.GetTimestamp(null).ReturnsForAnyArgs(call =>
                 {
-                    var arg = call.Arg<FileInfo>();
-                    Match m = Regex.Match(arg.Name, @"file(\d)\.txt");
+                    var arg = call.Arg<string>();
+                    Match m = Regex.Match(arg, @"file(\d)\.txt");
                     Capture c = m.Groups[1].Captures[0];
                     int result = Int32.Parse(c.Value);
                     return result;

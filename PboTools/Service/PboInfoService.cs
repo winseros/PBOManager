@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.IO;
@@ -181,9 +182,11 @@ namespace PboTools.Service
 
         private PboHeaderEntry GetHeaderEntry(FileInfo file, DirectoryInfo directory)
         {
+            string fn = directory.FullName;
+            int offset = fn[fn.Length - 1] == Path.DirectorySeparatorChar ? 0 : 1;
             var result = new PboHeaderEntry
             {
-                FileName = file.FullName.Substring(directory.FullName.Length + 1, file.FullName.Length - directory.FullName.Length - 1)
+                FileName = file.FullName.Substring(fn.Length + offset, file.FullName.Length - fn.Length - offset)
             };
 
             this.InflateEntry(result, file);
