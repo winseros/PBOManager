@@ -2,6 +2,8 @@
 
 A console utility for packing/unpacking OFP/ArmA pbo files.
 
+:warning: **Deprecated in favor of https://github.com/winseros/pboman3**
+
 ## Usage
 
 `pboconsole.exe -unpack myfile.pbo`
